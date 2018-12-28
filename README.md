@@ -86,8 +86,8 @@ the youtube videos are still based on the v2 courses and the v3 notebooks have s
 
 ## Lesson 1 - Working with data in modern deep learning platforms
 
-The first lesson explores data structures in TensorFlow, focusing on how to represent multichannel 
-microelectrode timeseries. 
+The first lesson explores data structures in TensorFlow (tf), focusing on how to represent multichannel 
+microelectrode timeseries. We will load data into tf structures, manipulate them, and visualize them.
 
     * Continuous vs Segmented
     * Spike data
@@ -102,6 +102,8 @@ microelectrode timeseries.
         * Band-pass filter -> Hilbert transform
         * Connectivity
             * Phase-amplitude coupling
+            
+    * FP16 vs FP32
 
 ## Lesson 2 - Unsupervised neural networks
 

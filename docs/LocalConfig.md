@@ -9,7 +9,7 @@ supported.
 
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
     Installation under the Version 2.0 header in the navigation bar on the right.
-    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0%29))
+    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)))
 
 1. Run the custom docker image
 

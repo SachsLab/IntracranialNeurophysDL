@@ -18,7 +18,7 @@ TensorFlow framework, and we require a GPU (tensorflow-gpu).
     * [Data Sources](#data-sources)
 * [Lesson Plan](#lesson-plan)
     * [Lesson 1 - Working with intracranial extracellular microelectrode data in Tensorflow](#lesson-1---working-with-data-in-modern-deep-learning-platforms)
-    * [Lesson 2 - Unsupervised neural networks](#lesson-2---unsupervised-neural-networks)
+    * [Lesson 2 - Neural networks for classification](#lesson-2---neural-networks-for-classification)
 https://github.com/SachsLab/IntracranialNeurophysDL
 # Getting Started
 
@@ -58,7 +58,7 @@ Chad's Warning:
 >While Jupyter notebooks are well-suited for didactic purposes like this course, they are the wrong choice for
 real-time analysis (e.g., brain-computer interface) due to limited I/O and they are the wrong choice for the
 development of python packages due to the poor (non-existent) support for debugging imported packages. Even though
-we use Jupyter notebooks here, you should strongly consider whether they are the right choice for your intended
+we use Jupyter notebooks here, you should strongly consider whether or not they are the right choice for your intended
 application. 
 
 ## Data Sources
@@ -76,7 +76,7 @@ and have a jupyter notebook instance running.
 If you are unfamiliar with Jupyter notebooks then you should spend a few minutes going through the
 fastaiv3/dl1/00_notebook_tutorial.ipynb notebook.
 
-Afterwards, you should go through a couple of the tensorflow/tutorials/keras/ notebooks, starting with
+Afterwards, you should go through a couple of the notebooks in `tensorflow/tutorials/keras/`, starting with
 `basic_classification.ipynb`.
 
 Keen learners may be interested in going through the rest of the fast.ai courses as well.
@@ -89,6 +89,7 @@ the youtube videos are still based on the v2 courses and the v3 notebooks have s
 The first lesson explores data structures in TensorFlow (tf), focusing on how to represent multichannel 
 microelectrode timeseries. We will load data into tf structures, manipulate them, and visualize them.
 
+    * Import raw data using python-neo
     * Continuous vs Segmented
     * Spike data
         * Filtering and re-thresholding
@@ -105,10 +106,23 @@ microelectrode timeseries. We will load data into tf structures, manipulate them
             
     * FP16 vs FP32
 
-## Lesson 2 - Unsupervised neural networks
+## Lesson 2 - Neural networks for classification
 
-The second lesson surveys neural network techniques to learn lower-dimensional representations of data.
+The second lesson introduces the general idea of neural networks, building from the simplest 1-layer linear network
+up to deep recurrent networks. We will interact with real neurophysiological data throughout.
 
-## Lesson 3 - 
+    * Describe Linear Discriminant Analysis using engineered features
+        * Analytical solution
+    * LDA as a 1-layer network with linear activation functions
+    * Cost function
+    * Gradient descent
+        * Learning rate
+    * Back propagation
+    * Other activation functions
+        * Calculating gradient
+    * Stacking layers
+    * ...
+
+## Lesson 3 - Neural networks for feature extraction
 
 ## Lesson 4 - 

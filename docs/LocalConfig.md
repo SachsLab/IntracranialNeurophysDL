@@ -43,7 +43,7 @@ supported.
 1. Download datasets
 
     Optional - For fastai v2
-        * `wget http://files.fast.ai/data/dogscats.zip ~/data/ && unzip ~/data/dogscats.zip`
+        * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
         
     TODO: reach and grasp
 
@@ -52,7 +52,7 @@ supported.
     * Open a terminal and change to a folder that you have write access to (e.g. `cd ~`), and `mkdir data`
         * This will be your 'persistent' storage, where downloaded data and calculated models will be stored.
         If you restart your docker container you should not have to download this data again.
-    * `docker run --runtime=nvidia --rm -d --name my_indl -p 8888:8888 -v $PWD/data:/notebooks/data indl_course`
+    * `docker run --runtime=nvidia --rm -d --name my_indl -p 8888:8888 -v $PWD/data:/root/data indl_course`
         * This will run the container in the background.
         * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 

@@ -89,40 +89,72 @@ the youtube videos are still based on the v2 courses and the v3 notebooks have s
 The first lesson explores data structures in TensorFlow (tf), focusing on how to represent multichannel 
 microelectrode timeseries. We will load data into tf structures, manipulate them, and visualize them.
 
-    * Import raw data using python-neo
-    * Continuous vs Segmented
-    * Spike data
-        * Filtering and re-thresholding
-        * Spike-sorting
-        * Binning
-        * Visualization
-            * Per-unit raster plots
-            * Tensor decomposition
-    * Local field potentials
-        * Feature extraction - is it needed?
-        * Band-pass filter -> Hilbert transform
-        * Connectivity
-            * Phase-amplitude coupling
-            
-    * FP16 vs FP32
 
+All of the following will be done in the notebooks.
+
+    * Other notebook tips
+        * Tab-completion
+        * shift+tab completion
+        * ?
+        * ??
+        * Press "h" for keyboard shortcuts
+    * Import raw data using python-neo
+    * Arrays: matrices and tensors. For each of our example datasets:
+        * Explain the experiment if applicable. Describe the recording setup (electrodes, amps, other measures). 
+        * Print data shape
+        * Print some of the contents
+            * Look at scale, precision. Data should be standardized.
+            * FP16 vs FP32 on GPU.
+        * Print additional structure (labels, kinematics, etc.)
+        * Visualize individual trials, colour coded by condition
+        * Visualize condition-average (much information lost)
+        * Visualize covariance structure.
+        * Tensor decomposition
+    * Domain expertise and feature engineering
+        * Become experts in neurophysiology of PD --> beta burst length and PAC
+            * BG-thalamocortical network has oscillatory activity --> time-frequency transform to spectrogram
+            * Beta band-pass filter --> Hilbert transform --> Instantaneous amplitude/phase
+        * Become experts in intracortical array neurophysiology --> "Neural modes"
+            * High-pass filter
+            * Threshold
+            * Spike-sorting
+            * Demultiplexing?
+            * Binned spike counts
+            * Counts to rates
+            * Dimensionality reduction (tensor decomp; factor analysis)
+        * Features can then be used in 'simpler' ML algorithm
+            * Describe Linear Discriminant Analysis using engineered features
+                * Analytical solution
+            * Show e.g. LDA in neural network parlance. (https://www.jstor.org/stable/2584434)
+                * Loss function
+                * Loss gradient
+                    * Learning rate
+                * Why log(p) instead of accuracy?
+        * In some cases, neural networks eliminate much of the need for feature engineering.
+            * Indeed, with enough data, and enough parameters, it is provable that feature engineering is unnecessary.
+    
 ## Lesson 2 - Neural networks for classification
 
 The second lesson introduces the general idea of neural networks, building from the simplest 1-layer linear network
-up to deep recurrent networks. We will interact with real neurophysiological data throughout.
+in the previous lesson up to deep recurrent networks. We will interact with real neurophysiological data throughout.
 
-    * Describe Linear Discriminant Analysis using engineered features
-        * Analytical solution
-    * LDA as a 1-layer network with linear activation functions
-    * Cost function
-    * Gradient descent
-        * Learning rate
-    * Back propagation
     * Other activation functions
-        * Calculating gradient
+        * Logistic
+        * RELU
+    * Calculating gradient
     * Stacking layers
     * ...
 
 ## Lesson 3 - Neural networks for feature extraction
 
 ## Lesson 4 - 
+
+## Notes
+
+Explained convolution kernels - http://setosa.io/ev/image-kernels
+Example of non-linear function - http://neuralnetworksanddeeplearning.com/chap4.html
+sigmoid vs relu
+Define params vs hyper-params
+Choosing hyper parameters
+    Learning rate - cyclic
+Loss function. Loss gradient.

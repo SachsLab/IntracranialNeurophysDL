@@ -1,12 +1,13 @@
 ## Local Configuration
 
 * [Linux Ubuntu](#linux-ubuntu)
+* [Windows 10](#windows-10)
 
 ### Linux Ubuntu
 
 The provided instructions are intended for users working in the Ubuntu desktop environment. We will 
-install nvidia-docker and run everything in a customized docker container. Advanced MacOS and Windows users
-may be able to read the files in the config folder to create a local environment but such configurations are not
+install nvidia-docker and run everything in a customized docker container. Advanced MacOS users
+may be able to read the files in the config folder to create a local environment but such a configuration is not
 supported.
 
 1. Install `nvidia-docker` version 2.0
@@ -65,3 +66,55 @@ supported.
         * `docker logs my_indl`
         * `docker exec my_indl jupyter notebook list`
     * Copy-paste the URL into your web browser and go.
+
+
+### Windows 10
+
+These instructions are provided and tested for Windows 10 but should work with previous versions, assuming users download
+the proper software versions. Unlike Linux, Windows can't forward GPU drivers to a docker container so
+all packages will be installed on the local machine. Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges. 
+
+1. Create a base Deep Learning directory that will contain all the course material (e.g. **D:\DL\**)
+
+1. Install nvidia CUDA toolkit version 9.0 for your windows version from [nvidia](https://developer.nvidia.com/cuda-90-download-archive) 
+    
+1. Download and install Git for Windows from [Git](https://gitforwindows.org/)
+
+1. Download and install the latest Anaconda version from [Anaconda](https://www.anaconda.com/download/#download)
+
+    * Launch the `Anaconda Prompt`. If Anaconda was not installed for a single user (i.e. outside of C:\Users\USER) you must run it using admin privileges by right clicking on the executable and selecting `More / Run as administrator`. 
+    * Navigate to the Deep Learning directory, for example:
+        * `D:`
+        * `cd DL`
+    * Run the following: 
+        * `conda update -y -n base -c defaults conda`
+        * `conda config --add channels conda-forge`
+    * We will create a new conda environment containing all the required packages and python version 3.6
+        * `conda create -y -n indl python=3.6 pip cudatoolkit=9.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
+    * Activate the new environment
+        * `conda activate indl`
+    * Add additional packages
+        * `pip install sklearn-pandas pandas-summary isoweek`
+    * If the installation differs from Windows, Anaconda, Python 3.6 or CUDA 9.0, go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line. If not, use: 
+        * `conda install pytorch torchvision -c pytorch`
+    * Fast.ai course material
+        * `git clone --depth=1 https://github.com/fastai/fastai **D:\DL\**fastai`
+        * `pip install **D:\DL\**fastai`
+        * `pip install torchtext`
+        * Download data [here](http://files.fast.ai/data/dogscats.zip) and unzip to **D:\DL\**fastai\data\dogscats
+    * Fast.ai V3 material
+        * `git clone https://github.com/fastai/course-v3.git **D:\DL\**fastai_v3`
+    * Tensorflow material
+        * `git clone --depth=1 https://github.com/tensorflow/docs.git **D:\DL\**tensorflow`
+        
+1. Launch Jupyter and create a new Notebook
+
+    * `jupyter notebook`
+    * Select: New / Python 3
+        
+1. Test installation
+    * Running this line should return True: 
+        * `import tensorflow as tf; tf.test.is_gpu_available()`
+    * Running this line should return a 2 x 3 tensor: 
+        * `import torch; print(torch.rand(2,3).cuda())`
+

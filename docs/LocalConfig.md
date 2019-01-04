@@ -89,7 +89,7 @@ all packages will be installed on the local machine. Note that installing outsid
     * Run the following: 
         * `conda update -y -n base -c defaults conda`
         * `conda config --add channels conda-forge`
-    * We will create a new conda environment containing all the required packages and python version 3.6
+    * Create a new conda environment containing all the required packages and python version 3.6
         * `conda create -y -n indl python=3.6 pip cudatoolkit=9.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
     * Activate the new environment
         * `conda activate indl`

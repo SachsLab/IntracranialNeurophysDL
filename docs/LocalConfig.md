@@ -43,7 +43,7 @@ supported.
 1. Download datasets
 
     Optional - For fastai v2
-        * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
+      * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
         
     TODO: reach and grasp
 

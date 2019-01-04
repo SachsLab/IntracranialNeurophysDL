@@ -74,7 +74,7 @@ These instructions are provided and tested for Windows 10 but should work with p
 the proper software versions. Unlike Linux, Windows can't forward GPU drivers to a docker container so
 all packages will be installed on the local machine. Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges. 
 
-1. Create a base Deep Learning directory that will contain all the course material (e.g. **D:\DL\**)
+1. Create a base Deep Learning directory that will contain all the course material (e.g. <strong> D:\DL\ </strong> )
 
 1. Install nvidia CUDA toolkit version 9.0 for your windows version from [nvidia](https://developer.nvidia.com/cuda-90-download-archive) 
     
@@ -97,15 +97,15 @@ all packages will be installed on the local machine. Note that installing outsid
         * `pip install sklearn-pandas pandas-summary isoweek`
     * If the installation differs from Windows, Anaconda, Python 3.6 or CUDA 9.0, go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line. If not, use: 
         * `conda install pytorch torchvision -c pytorch`
-    * Fast.ai course material
-        * `git clone --depth=1 https://github.com/fastai/fastai **D:\DL\**fastai`
-        * `pip install **D:\DL\**fastai`
+    * Fast.ai course material. Replace <strong>D:\DL\ </strong> by your Deep Learning directory. 
+        * `git clone --depth=1 https://github.com/fastai/fastai D:\DL\fastai`
+        * `pip install D:\DL\fastai`
         * `pip install torchtext`
-        * Download data [here](http://files.fast.ai/data/dogscats.zip) and unzip to **D:\DL\**fastai\data\dogscats
+        * Download data [here](http://files.fast.ai/data/dogscats.zip) and unzip to D:\DL\fastai\data\dogscats
     * Fast.ai V3 material
-        * `git clone https://github.com/fastai/course-v3.git **D:\DL\**fastai_v3`
+        * `git clone https://github.com/fastai/course-v3.git D:\DL\fastai_v3`
     * Tensorflow material
-        * `git clone --depth=1 https://github.com/tensorflow/docs.git **D:\DL\**tensorflow`
+        * `git clone --depth=1 https://github.com/tensorflow/docs.git D:\DL\tensorflow`
         
 1. Launch Jupyter and create a new Notebook
 

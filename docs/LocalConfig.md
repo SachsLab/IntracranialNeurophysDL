@@ -1,4 +1,8 @@
-### Local Configuration
+## Local Configuration
+
+* [Linux Ubuntu](#linux-ubuntu)
+
+### Linux Ubuntu
 
 The provided instructions are intended for users working in the Ubuntu desktop environment. We will 
 install nvidia-docker and run everything in a customized docker container. Advanced MacOS and Windows users

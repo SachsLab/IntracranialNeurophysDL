@@ -2,6 +2,7 @@
 
 * [Linux Ubuntu](#linux-ubuntu)
 * [Windows 10](#windows-10)
+* [MacOS](#macos)
 
 ### Linux Ubuntu
 
@@ -117,4 +118,50 @@ all packages will be installed on the local machine. Note that installing outsid
         * `import tensorflow as tf; tf.test.is_gpu_available()`
     * Running this line should return a 2 x 3 tensor: 
         * `import torch; print(torch.rand(2,3).cuda())`
+
+
+### MacOS 10.14 (Mojave)
+
+These instructions provided are tested for MacOS 10.14 Mojave, but should work with earlier versions. The MacOS environment set up here consists of the following limitations:
+* The `nvidia-docker` described in the Linux instruction above cannot be used in Windows or MacOS.
+* Recent Mac hardware (iMac or Macbook Pro) do not use NVIDIA GPUs, and thus CUDA cannot be used for tensorflow.
+
+To setup the environment, run the shell script:
+`$ ./.dots all`
+
+The above command runs all of the following scripts:
+* **`macos_prep.sh`**
+    1. Updates MacOS
+    2. Installs the Xcode Command Line Tools
+    3. Create the directory ${HOME}/Developer/indl.
+* **`brew.sh`**:
+    1. Install Homebrew if not already installed, and updates and upgrade any already-installed formulae
+    2. Install any required developer tool kits
+    
+* **`condata.sh`**:
+    1. Install Miniconda:
+        * `wget -p --convert-links -nH -nd -P${HOME}/Downloads https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh`
+        * `cd ~/Downloads`
+        * `chmod u+x Miniconda3-latest-MacOSX-x86_64.sh`
+        * `./Miniconda3-latest-MacOSX-x86_64.sh`
+    2. Setup Miniconda, `indl` environment:
+        * `conda update -y -n base -c defaults conda`
+        * `conda config --add channels conda-forge`
+
+        * `conda create -y -n indl python=3.6 pip tensorflow jupyterlab jupyter_contrib_nbextensions \`
+        * `bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn \`
+        * `python-graphviz scikit-learn ipywidgets`
+    3. Activate the `indl` environment:
+        * `conda activate indl`
+        * `pip install sklearn-pandas pandas-summary isoweek`
+        * `conda install pytorch torchvision -c pytorch`
+    4. Download datasets (Optional)
+        * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
+    5. Download materials:
+        * `git clone --depth=1 https://github.com/fastai/fastai ${HOME}/Developer/indl/fastai`
+        * `pip install ${HOME}/Developer/indl/fastai torchtext`
+        * `wget -p --convert-links -nH -nd -P${HOME}/Developer/indl \`
+        * `http://files.fast.ai/data/dogscats.zip && unzip ${HOME}/Developer/indl/dogscats.zip -d ${HOME}/Developer/indl/data/`
+        * `git clone https://github.com/fastai/course-v3.git ${HOME}/Developer/indl/fastai_v3`
+        * `git clone --depth=1 https://github.com/tensorflow/docs.git ${HOME}/Developer/indl/tensorflow`
 

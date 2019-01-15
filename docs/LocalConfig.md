@@ -120,7 +120,7 @@ all packages will be installed on the local machine. Note that installing outsid
         * `import torch; print(torch.rand(2,3).cuda())`
 
 
-### MacOS 10.14 (Mojave)
+### MacOS
 
 These instructions provided are tested for MacOS 10.14 Mojave, but should work with earlier versions. The MacOS environment set up here consists of the following limitations:
 * The `nvidia-docker` described in the Linux instruction above cannot be used in Windows or MacOS.

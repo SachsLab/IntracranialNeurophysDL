@@ -148,9 +148,7 @@ The above command runs all of the following scripts:
         * `conda update -y -n base -c defaults conda`
         * `conda config --add channels conda-forge`
 
-        * `conda create -y -n indl python=3.6 pip tensorflow jupyterlab jupyter_contrib_nbextensions \`
-        * `bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn \`
-        * `python-graphviz scikit-learn ipywidgets`
+        * `conda create -y -n indl python=3.6 pip tensorflow jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
     3. Activate the `indl` environment:
         * `conda activate indl`
         * `pip install sklearn-pandas pandas-summary isoweek`

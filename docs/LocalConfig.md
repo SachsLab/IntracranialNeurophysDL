@@ -58,7 +58,7 @@ supported.
     * Open a terminal and change to a folder that you have write access to (e.g. `cd ~`), and `mkdir data`
         * This will be your 'persistent' storage, where downloaded data and calculated models will be stored.
         If you restart your docker container you should not have to download this data again.
-    * `docker run --runtime=nvidia --rm -d --name my_indl -p 8888:8888 -v $PWD/data:/root/data indl_course`
+    * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/data:/root/data indl_course`
         * This will run the container in the background.
         * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 

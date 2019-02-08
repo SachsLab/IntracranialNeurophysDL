@@ -1,14 +1,12 @@
+# Purpose
+
+The SachsLab is preparing a short (~2-day) workshop on practical deep learning (DL) applied to intracranial neurophysiology. The goal of the workshop is to help attendees gain familiarity with technologies commonly used in DL (e.g., tensorflow on GPU, jupyter notebooks), to understand DL programming paradigms (e.g., batch loading data), and to become proficient in the application of DL to intracranial neurophysiology. The workshop is intended for scientists and trainees who have a basic understanding of machine learning concepts, have basic familiarity with Python syntax, and are interested in applying deep learning to extracellular electrophysiology data. For learners who do not have an interest in these kinds of data but are interested in DL more generally, please feel free to reach out to Chad and he will be happy to direct you to some wonderful resources that are better suited to your interests.
+
+In the workshop, attendees will learn how to run and interact with keras/tensorflow on a GPU either locally or on a remote server. They will learn how to load and process electrophysiology datasets (1 open ECoG dataset, 1 single-channel deep brain microelectrode dataset, and 3 multichannel (~192) intracortical microelectrode array datasets). After an introduction to DL, attendees will learn how to apply several DL algorithms and architectures to these types of data, and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the algorithms covered include convolutional neural nets (CNN), and several flavours of recurrent neural nets (RNN) including LSTM, variational autoencoders, and transformer models. For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own laptop and have configured their deep learning environment (instructions will be provided in the week before the workshop).
+
 # Introduction
 
-This repository contains resources for the SachsLab short course on deep learning for the analysis of
-intracranial extracellular electrophysiology. The course is intended for scientists and trainees who analyze
-extracellular neurophysiological data (especially from human and non-human primates), have a basic
-understanding of machine learning concepts, have modest programming ability, and are interested in
-applying deep learning to their work. The course is scoped to get the learner applying deep learning tools
-as quickly as possible, and as such the fundamentals of neural networks and deep learning are not covered.
-Similarly, the course is opinionated in its selection of development environment, deep learning framework,
-and example datasets. There are many tools to choose from, but we choose to use Python, with the
-TensorFlow framework, and we require a GPU (tensorflow-gpu).
+This repository contains resources for the SachsLab workshop on deep learning for the analysis of intracranial extracellular electrophysiology. The workshop is opinionated in its selection of development environment, deep learning framework, and example datasets. There are many tools to choose from, but we choose to use Python, with the TensorFlow framework, and we require a GPU (tensorflow-gpu).
 
 # Table Of Contents
 

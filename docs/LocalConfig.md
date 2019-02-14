@@ -6,8 +6,13 @@
 
 ### Linux Ubuntu
 
-The provided instructions are intended for users working in the Ubuntu desktop environment. We will 
+The provided instructions are intended for users working in the Ubuntu 18.04 desktop environment. We will 
 install nvidia-docker and run everything in a customized docker container.
+
+1. Optional: nvidia driver is version 410
+
+I followed [these instructions](https://askubuntu.com/a/1077063) successfully.
+I don't think this was necessary.
 
 1. Install `nvidia-docker` version 2.0
 
@@ -36,7 +41,7 @@ install nvidia-docker and run everything in a customized docker container.
         * `docker build -f indl_course.Dockerfile --build-arg GHUSER=<user> --build-arg GHPASS=<pass> -t indl_course .`
             * TODO: Remove the GHUSER and GHPASS after this repo goes public.
             * This takes a long time.
-            * The dockerfile is based off `nvidia/cuda:9.0-base-ubuntu16.04` and mixes elements of the dockerfile
+            * The dockerfile is based off `nvidia/cuda:10.0-base-ubuntu18.04` and mixes elements of the dockerfile
             for `tensorflow/tensorflow:latest-gpu-py3` [here](https://github.com/tensorflow/tensorflow/blob/479abd88927e54205ea418f68e64057e5b837e2d/tensorflow/tools/dockerfiles/dockerfiles/gpu-jupyter.Dockerfile)
             and the dockerfile for `paperspace/fastai:cuda9_pytorch0.3.0` [here](https://github.com/Paperspace/fastai-docker/blob/master/Dockerfile).
     * Test the image 
@@ -44,13 +49,13 @@ install nvidia-docker and run everything in a customized docker container.
         The expected result should be similar to below:
         ```
         +-----------------------------------------------------------------------------+
-        | NVIDIA-SMI 390.77                 Driver Version: 390.77                    |
+        | NVIDIA-SMI 410.79       Driver Version: 410.79       CUDA Version: 10.0     |
         |-------------------------------+----------------------+----------------------+
         | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
         | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
         |===============================+======================+======================|
         |   0  TITAN Xp            Off  | 00000000:01:00.0  On |                  N/A |
-        | 23%   27C    P8     9W / 250W |    526MiB / 12188MiB |      1%      Default |
+        | 23%   33C    P0    60W / 250W |    240MiB / 12188MiB |      0%      Default |
         +-------------------------------+----------------------+----------------------+
         ```
         * `docker run --runtime=nvidia --rm indl_course python -c "import tensorflow as tf; tf.test.is_gpu_available()"`

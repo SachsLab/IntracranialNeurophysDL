@@ -1,6 +1,6 @@
 
-ARG UBUNTU_VERSION=16.04
-FROM nvidia/cuda:9.0-base-ubuntu${UBUNTU_VERSION}
+ARG UBUNTU_VERSION=18.04
+FROM nvidia/cuda:10.0-base-ubuntu${UBUNTU_VERSION}
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,11 +36,13 @@ RUN conda update -y -n base -c defaults conda
 RUN conda config --append channels conda-forge
 
 # Create a new conda environment with many dependencies.
-RUN conda create -y -n indl python=3.6 pip cudatoolkit=9.0 tensorflow-gpu jupyterlab\
+RUN conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab\
  jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv\
  seaborn python-graphviz scikit-learn ipywidgets
+# Activate the new conda env (just put it first on the path)
 ENV PATH /root/miniconda/envs/indl/bin:$PATH
 # export PATH=/root/miniconda/envs/indl/bin:$PATH
+# Install more python packages.
 RUN pip install sklearn-pandas pandas-summary isoweek
 # Test in a --runtime=nvidia session with:
 # python -c "import tensorflow as tf; tf.test.is_gpu_available()"

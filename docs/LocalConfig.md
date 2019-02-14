@@ -7,17 +7,27 @@
 ### Linux Ubuntu
 
 The provided instructions are intended for users working in the Ubuntu desktop environment. We will 
-install nvidia-docker and run everything in a customized docker container. Advanced MacOS users
-may be able to read the files in the config folder to create a local environment but such a configuration is not
-supported.
+install nvidia-docker and run everything in a customized docker container.
 
 1. Install `nvidia-docker` version 2.0
 
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
     Installation under the Version 2.0 header in the navigation bar on the right.
     ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)))
+    
+1. (Optional) Clean out old docker images
 
-1. Run the custom docker image
+    If it has been a while since you previously configured a docker image for this workshop, then you may wish to
+    cleanup your docker environment and start again.
+
+    * List any running containers: `docker ps -a`
+    * Kill any running containers: `docker stop $(docker ps -a -q)`
+    * List docker images: `docker image ls`
+    * Copy the IMAGE ID to clipboard
+    * Remove the image: `docker rmi <pasted_image_id>`
+    * Cleanup: `docker system prune` 
+
+1. Create the docker image
 
     * Try this first: `TODO: put the built image on dockerhub so it can be pulled directly`
     * Else: Build the docker image
@@ -51,14 +61,14 @@ supported.
     Optional - For fastai v2
       * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
         
-    TODO: reach and grasp
+    !TODO: others. See [data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md)
 
 1. Run the docker container
 
-    * Open a terminal and change to a folder that you have write access to (e.g. `cd ~`), and `mkdir data`
+    * Open a terminal and change to a folder that you have write access to (e.g. `cd ~`), and `mkdir indl`
         * This will be your 'persistent' storage, where downloaded data and calculated models will be stored.
         If you restart your docker container you should not have to download this data again.
-    * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/data:/root/data indl_course`
+    * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/indl:/root/data indl_course`
         * This will run the container in the background.
         * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 
@@ -75,9 +85,10 @@ These instructions are provided and tested for Windows 10 but should work with p
 the proper software versions. Unlike Linux, Windows can't forward GPU drivers to a docker container so
 all packages will be installed on the local machine. Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges. 
 
-1. Create a base Deep Learning directory that will contain all the course material (e.g. <strong> D:\DL\ </strong> )
+1. Create a base Deep Learning directory that will contain all the workshop material (e.g. <strong> D:\DL\ </strong> )
 
-1. Install nvidia CUDA toolkit version 9.0 for your windows version from [nvidia](https://developer.nvidia.com/cuda-90-download-archive) 
+1. Install nvidia CUDA toolkit version 9.0 for your windows version from [nvidia](https://developer.nvidia.com/cuda-90-download-archive)
+    * TODO: Check if this is necessary. It's possible that conda handles all the details for us. 
     
 1. Download and install Git for Windows from [Git](https://gitforwindows.org/)
 
@@ -122,9 +133,11 @@ all packages will be installed on the local machine. Note that installing outsid
 
 ### MacOS
 
-These instructions provided are tested for MacOS 10.14 Mojave, but should work with earlier versions. The MacOS environment set up here consists of the following limitations:
+These instructions provided are tested for MacOS 10.14 Mojave, but should work with earlier versions.
+The MacOS environment set up here consists of the following limitations:
 * The `nvidia-docker` described in the Linux instruction above cannot be used in Windows or MacOS.
 * Recent Mac hardware (iMac or Macbook Pro) do not use NVIDIA GPUs, and thus CUDA cannot be used for tensorflow.
+Some operations may be much slower on a Mac because it uses the CPU only.
 
 To setup the environment, run the shell script:
 `$ ./.dots all`
@@ -147,7 +160,6 @@ The above command runs all of the following scripts:
     2. Setup Miniconda, `indl` environment:
         * `conda update -y -n base -c defaults conda`
         * `conda config --add channels conda-forge`
-
         * `conda create -y -n indl python=3.6 pip tensorflow jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
     3. Activate the `indl` environment:
         * `conda activate indl`

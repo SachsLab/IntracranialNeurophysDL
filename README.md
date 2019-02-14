@@ -1,49 +1,65 @@
 # Purpose
 
-The SachsLab is preparing a short (~2-day) workshop on practical deep learning (DL) applied to intracranial neurophysiology. The goal of the workshop is to help attendees gain familiarity with technologies commonly used in DL (e.g., tensorflow on GPU, jupyter notebooks), to understand DL programming paradigms (e.g., batch loading data), and to become proficient in the application of DL to intracranial neurophysiology. The workshop is intended for scientists and trainees who have a basic understanding of machine learning concepts, have basic familiarity with Python syntax, and are interested in applying deep learning to extracellular electrophysiology data. For learners who do not have an interest in these kinds of data but are interested in DL more generally, please feel free to reach out to Chad and he will be happy to direct you to some wonderful resources that are better suited to your interests.
+The SachsLab is preparing a short (~2-day) workshop on practical deep learning (DL) applied to intracranial
+neurophysiology. The goal of the workshop is to help attendees gain familiarity with technologies commonly used in DL
+(e.g., tensorflow on GPU, jupyter notebooks), to understand DL programming paradigms (e.g., batch loading data), and to
+become proficient in the application of DL to intracranial neurophysiology. The workshop is intended for scientists and
+trainees who have a basic understanding of machine learning concepts, have basic familiarity with Python syntax, and are
+interested in applying deep learning to extracellular neurophysiology data. For learners who do not have an interest
+in these kinds of data but are interested in DL more generally, please feel free to reach out to Chad and he will be
+happy to direct you to some wonderful resources that are better suited to your interests.
 
-In the workshop, attendees will learn how to run and interact with keras/tensorflow on a GPU either locally or on a remote server. They will learn how to load and process electrophysiology datasets (1 open ECoG dataset, 1 single-channel deep brain microelectrode dataset, and 3 multichannel (~192) intracortical microelectrode array datasets). After an introduction to DL, attendees will learn how to apply several DL algorithms and architectures to these types of data, and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the algorithms we aim to cover include convolutional neural nets (CNN), several flavours of recurrent neural nets (RNN), autoencoders, and transformer models. For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own laptop and have configured their deep learning environment (instructions will be provided in the week before the workshop).
-
-# Introduction
-
-This repository contains resources for the SachsLab workshop on deep learning for the analysis of intracranial extracellular electrophysiology. The workshop is opinionated in its selection of development environment, deep learning framework, and example datasets. There are many tools to choose from, but we choose to use Python, with the TensorFlow framework, and we require a GPU (tensorflow-gpu).
+In the workshop, attendees will learn how to run and interact with keras/tensorflow on a GPU either locally or on a
+remote server. They will learn how to load and process electrophysiology datasets (1 open ECoG dataset, 1 single-channel
+deep brain microelectrode dataset, and 3 multichannel (~192) intracortical microelectrode array datasets). After an
+introduction to DL, attendees will learn how to apply several DL algorithms and architectures to these types of data,
+and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the
+algorithms we aim to cover include convolutional neural nets (CNN), several flavours of recurrent neural nets (RNN),
+autoencoders, and transformer models. For each topic, attendees will work through prepared examples using real data and
+thus are expected to bring their own laptop and have configured their deep learning environment (instructions will be
+provided in the week before the workshop).
 
 # Table Of Contents
 
 * [Getting Started](#getting-started)
     * [Environment](#environment)
-    * [Working with the Lesson Notebooks](#working-with-the-lesson-notebooks)
+        * [Configuration](#configuration)
+    * [Working with the Workshop Notebooks](#working-with-the-workshop-notebooks)
     * [Data Sources](#data-sources)
 * [Lesson Plan](#lesson-plan)
     * [Lesson 1 - Working with intracranial extracellular microelectrode data in Tensorflow](#lesson-1---working-with-data-in-modern-deep-learning-platforms)
     * [Lesson 2 - Neural networks for classification](#lesson-2---neural-networks-for-classification)
-https://github.com/SachsLab/IntracranialNeurophysDL
+
 # Getting Started
 
 ## Environment
 
-The lessons assume you have access to a machine with a CUDA-enabled nVidia GPU. Here we provide
-instructions for either a *local* configuration (i.e., your own desktop or laptop) but only for Ubuntu Linux.
-We also provide instructions for a *remote* configuration (i.e., from a paid service like Amazon Web Services
-or Paperspace) that applies to any computer with a web browser and keyboard.
+This repository contains resources for the SachsLab workshop on deep learning for the analysis of intracranial
+extracellular electrophysiology. The workshop is opinionated in its selection of development environment, deep learning
+framework, and example datasets. There are many tools to choose from, but we choose to use Python, with the TensorFlow
+framework, and we require a GPU (tensorflow-gpu).
+
+We use CUDA 9.0 because its nVidia driver requirements are more easily achieved than the requirements of
+CUDA 9.2 or 10.0. We use Jupyter notebooks running on Python 3.6. The workshop uses 
+[TensorFlow](https://www.tensorflow.org/) gpu-enabled variant: `tensorflow-gpu` as a backend and the high-level API
+[Keras](https://www.tensorflow.org/guide/keras). The setup instructions will help you configure your environment.
+The instructions also include steps to add [PyTorch](https://pytorch.org/) which is another deep learning Python
+library, and a high-level API for PyTorch called [fast.ai](https://www.fast.ai/).
+
+### Configuration
+
+The lessons assume you have access to a machine with a CUDA-enabled nVidia GPU. Click below to get
+instructions for either a *local* configuration (i.e., your own desktop or laptop), or for a *remote* configuration
+(i.e., from an online service like Google Colab or Amazon Web Services).
 
 * [Local configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
 * [Remote configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/RemoteConfig.md)
 
-Advanced MacOS or Windows users may be able to use the information in the local config docs to setup their own
-local configuration but this will not be explained in this course.
+When you have finished configuring your environment, you should be able to interact with the workshop notebooks.
+Additionally, your environment should also have other notebooks for your reference, including
+"Introduction to TensorFlow", and the fast.ai course notebooks.
 
-We use CUDA 9.0 because its nVidia driver requirements are more easily achieved than the requirements of
-CUDA 9.2 or 10.0. We use Jupyter notebooks running on Python 3.6 with [PyTorch](https://pytorch.org/) (including
-[torchvision](https://pytorch.org/docs/stable/torchvision/index.html)), and the [TensorFlow](https://www.tensorflow.org/)
-gpu-enabled variant: `tensorflow-gpu`.
-
-The development environment comes with 3 sets of notebooks:
-  * Introduction to TensorFlow
-  * The [fast.ai](https://www.fast.ai/) course (v3).
-  * The lessons for this course.
-
-## Working with the Lesson Notebooks
+## Working with the Workshop Notebooks
 
 The lessons comprise a series of Jupyter Notebooks, a.k.a. interactive python notebooks with file extension `.ipynb`.
 
@@ -61,14 +77,17 @@ application.
 
 ## Data Sources
 
-TODO
+We have curated several datasets specifically for this workshop. Please see the
+[data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md) for their descriptions.
+
+Smaller datasets will be downloaded on demand as required by each lesson.
+Larger datasets will need to be downloaded in advance. 
 
 # Lesson Plan
 
-## Before the course
+## Before the workshop.
 
-You should have already completed either the [Local Configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
-or [Remote Configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/RemoteConfig.md)
+You should have already completed either the [configuration instructions](#configuration)
 and have a jupyter notebook instance running.
 
 If you are unfamiliar with Jupyter notebooks then you should spend a few minutes going through the
@@ -78,9 +97,7 @@ Afterwards, you should go through a couple of the notebooks in `tensorflow/tutor
 `basic_classification.ipynb`.
 
 Keen learners may be interested in going through the rest of the fast.ai courses as well.
-fast.ai uses PyTorch, which we do not use in this course, but the principles are the same.
-Note that this image provides both fast.ai courses v2 and v3. As of this writing (December 2018),
-the youtube videos are still based on the v2 courses and the v3 notebooks have some bugs.
+fast.ai uses PyTorch, which we do not use in this workshops, but the principles are the same.
 
 ## Lesson 1 - Working with data in modern deep learning platforms
 

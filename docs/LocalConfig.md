@@ -35,7 +35,7 @@ install nvidia-docker and run everything in a customized docker container.
     * Try this first: `TODO: put the built image on dockerhub so it can be pulled directly`
     * Else: Build the docker image 
         * If you haven't already, clone this repository locally or otherwise download the `indl_workshop.Dockerfile`.
-        * `docker build -f indl_workshop.Dockerfile --build-arg GHUSER=<user> --build-arg GHPASS=<pass> -t indl_workshop .`
+        * `docker build -f indl_workshop.Dockerfile --build-arg GHUSER=<user> --build-arg GHPASS=<pass> --build-arg PYTHON=python3.6 -t indl_workshop .`
             * This takes a long time. And depending on your connection, it may stop half way and you'll have to try again.
             * The dockerfile is based off [`tensorflow/tensorflow:latest-gpu-py3-jupyter`](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/dockerfiles)
             * TODO: Remove the GHUSER and GHPASS after this repo goes public. 

@@ -1,43 +1,98 @@
-ARG UBUNTU_VERSION=18.04
-ARG PY_VERSION=3.6
-FROM nvidia/cuda:10.0-base-ubuntu${UBUNTU_VERSION}
+ARG UBUNTU_MAJOR=18
+ARG UBUNTU_MINOR=04
+ARG ARCH=
+ARG CUDA=10.0
+FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_MAJOR}.${UBUNTU_MINOR} as base
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        wget \
-        git \
-        unzip \
-        bzip2 \
-        && \
-    apt-get clean && \
-rm -rf /var/lib/apt/lists/*
+# Some ARGS are specified again because the FROM directive resets ARGs
+# (but their default value is retained if set previously)
+ARG UBUNTU_MAJOR
+ARG UBUNTU_MINOR
+ARG ARCH
+ARG CUDA
+ARG CUDNN=7.4.1.5-1
 
-# The following is not in the official tensorflow dockerfile but it is in every other tensorflow dockerfile I see.
-ENV CUDA_HOME /usr/local/cuda
-# export CUDA_HOME=/usr/local/cuda
+# Needed for string substitution
+SHELL ["/bin/bash", "-c"]
+
+ARG USE_PYTHON_3_NOT_2
+ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
+ARG PYTHON=python${_PY_SUFFIX}
+ARG PIP=pip${_PY_SUFFIX}
 
 # See http://bugs.python.org/issue19846
 ENV LANG C.UTF-8
 # export LANG=C.UTF-8
 
+# Pick up some TF dependencies and other tools we will use.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        cuda-command-line-tools-${CUDA/./-} \
+        cuda-cublas-${CUDA/./-} \
+        cuda-cufft-${CUDA/./-} \
+        cuda-curand-${CUDA/./-} \
+        cuda-cusolver-${CUDA/./-} \
+        cuda-cusparse-${CUDA/./-} \
+        curl \
+        libcudnn7=${CUDNN}+cuda${CUDA} \
+        libfreetype6-dev \
+        libhdf5-serial-dev \
+        libzmq3-dev \
+        pkg-config \
+        software-properties-common \
+        ${PYTHON} \
+        wget \
+        git \
+        unzip \
+        bzip2 && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*
+
+RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
+        apt-get install nvinfer-runtime-trt-repo-ubuntu${UBUNTU_MAJOR}${UBUNTU_MINOR}-5.0.2-ga-cuda${CUDA} \
+        && apt-get update \
+        && apt-get install -y --no-install-recommends libnvinfer5=5.0.2-1+cuda${CUDA} \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*)
+
+# For CUDA profiling, TensorFlow requires CUPTI.
+ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+
+# The following is not in the official tensorflow dockerfile but it is in every other tensorflow dockerfile I see.
+ENV CUDA_HOME /usr/local/cuda
+# export CUDA_HOME=/usr/local/cuda
+
+RUN curl https://bootstrap.pypa.io/get-pip.py | sudo -H ${PYTHON}
+
+RUN ${PIP} --no-cache-dir install --upgrade \
+    pip \
+    setuptools
+
+# Some TF tools expect a "python" binary
+RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
+
+# Options:
+#   tensorflow
+#   tensorflow-gpu
+#   tf-nightly
+#   tf-nightly-gpu
+# Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
+# Installs the latest version by default.
+ARG TF_PACKAGE=tensorflow-gpu
+ARG TF_PACKAGE_VERSION=
+RUN ${PIP} install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
+
+COPY bashrc /etc/bash.bashrc
+RUN chmod a+rwx /etc/bash.bashrc
+
+RUN ${PIP} install jupyter matplotlib
+RUN ${PIP} install jupyter_http_over_ws
+RUN jupyter serverextension enable --py jupyter_http_over_ws
+
 # We will download supporting tools into the HOME (/root) directory.
 WORKDIR /root
 
-# Install conda
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    chmod +x ~/miniconda.sh && \
-    ~/miniconda.sh -b -p ~/miniconda && \
-    rm ~/miniconda.sh
-ENV PATH /root/miniconda/bin:$PATH
-# export PATH=/root/miniconda/bin:$PATH
-RUN . /root/miniconda/etc/profile.d/conda.sh
-RUN conda update -y -n base -c defaults conda
-#RUN conda config --append channels conda-forge
-
-RUN conda create -y -n indl python=${PY_VERSION} pip cudatoolkit=10.0 tensorflow-gpu fastai\
- jupyterlab jupyter_contrib_nbextensions opencv seaborn python-graphviz scikit-learn ipywidgets\
-  -c anaconda -c conda-forge -c pytorch -c fastai
-ENV PATH /root/miniconda/envs/indl/bin:$PATH
+RUN ${PIP} install fastai opencv seaborn python-graphviz scikit-learn ipywidgets
 
 RUN mkdir -p /root/.torch/models
 RUN mkdir -p /root/.fastai/data
@@ -85,5 +140,8 @@ RUN ln -s /persist /notebooks/data
 # Set the working directory for when the container is run.
 WORKDIR /notebooks
 
+# I have no idea what this does.
+RUN ${PYTHON} -m ipykernel.kernelspec
+
 # Run the jupyter notebook
-CMD ["bash", "-c", "source ~/.bashrc && jupyter notebook --notebook-dir=/notebooks --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.custom_display_url='http://127.0.0.1:8888'"]
+CMD ["bash", "-c", "source /etc/bash.bashrc && jupyter notebook --notebook-dir=/notebooks --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.custom_display_url='http://127.0.0.1:8888'"]

@@ -11,6 +11,13 @@ install nvidia-docker and run everything in a customized docker container.
 
 1. Install nvidia driver version 410 following [these instructions](https://askubuntu.com/a/1077063).
 
+    
+1. Install `nvidia-docker` version 2.0
+
+    Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
+    Installation under the Version 2.0 header in the navigation bar on the right.
+    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0))) 
+
 1. (Optional) Clean out old docker images
 
     If it has been a while since you previously configured a docker image for this workshop, then you may wish to
@@ -22,12 +29,6 @@ install nvidia-docker and run everything in a customized docker container.
     * Copy the IMAGE ID to clipboard
     * Remove the image: `docker rmi <pasted_image_id>`
     * Cleanup: `docker system prune`
-    
-1. Install `nvidia-docker` version 2.0
-
-    Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
-    Installation under the Version 2.0 header in the navigation bar on the right.
-    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0))) 
 
 1. Create the docker image
 

@@ -32,11 +32,12 @@ ENV PATH /root/miniconda/bin:$PATH
 # export PATH=/root/miniconda/bin:$PATH
 RUN . /root/miniconda/etc/profile.d/conda.sh
 RUN conda update -y -n base -c defaults conda
-RUN conda config --append channels conda-forge
+#RUN conda config --append channels conda-forge
 
 RUN conda create -y -n indl python=${PY_VERSION} pip cudatoolkit=10.0 tensorflow-gpu fastai\
- jupyterlab jupyter_contrib_nbextensions opencv seaborn python-graphviz scikit-learn ipywidgets -c pytorch -c fastai
-RUN conda activate indl
+ jupyterlab jupyter_contrib_nbextensions opencv seaborn python-graphviz scikit-learn ipywidgets\
+  -c anaconda -c conda-forge -c pytorch -c fastai
+ENV PATH /root/miniconda/envs/indl/bin:$PATH
 
 RUN mkdir -p /root/.torch/models
 RUN mkdir -p /root/.fastai/data

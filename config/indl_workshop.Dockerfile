@@ -2,7 +2,7 @@ ARG UBUNTU_MAJOR=18
 ARG UBUNTU_MINOR=04
 ARG ARCH=
 ARG CUDA=10.0
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_MAJOR}.${UBUNTU_MINOR} as base
+FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-cudnn7-runtime-ubuntu${UBUNTU_MAJOR}.${UBUNTU_MINOR} as base
 
 # Some ARGS are specified again because the FROM directive resets ARGs
 # (but their default value is retained if set previously)
@@ -15,11 +15,6 @@ ARG CUDNN=7.4.1.5-1
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
 
-ARG USE_PYTHON_3_NOT_2
-ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
-ARG PYTHON=python${_PY_SUFFIX}
-ARG PIP=pip${_PY_SUFFIX}
-
 # See http://bugs.python.org/issue19846
 ENV LANG C.UTF-8
 # export LANG=C.UTF-8
@@ -27,20 +22,19 @@ ENV LANG C.UTF-8
 # Pick up some TF dependencies and other tools we will use.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        cuda-cublas-${CUDA/./-} \
-        cuda-cufft-${CUDA/./-} \
-        cuda-curand-${CUDA/./-} \
-        cuda-cusolver-${CUDA/./-} \
-        cuda-cusparse-${CUDA/./-} \
+#        cuda-command-line-tools-${CUDA/./-} \
+#        cuda-cublas-${CUDA/./-} \
+#        cuda-cufft-${CUDA/./-} \
+#        cuda-curand-${CUDA/./-} \
+#        cuda-cusolver-${CUDA/./-} \
+#        cuda-cusparse-${CUDA/./-} \
+#        libcudnn7=${CUDNN}+cuda${CUDA} \
         curl \
-        libcudnn7=${CUDNN}+cuda${CUDA} \
         libfreetype6-dev \
         libhdf5-serial-dev \
         libzmq3-dev \
         pkg-config \
         software-properties-common \
-        ${PYTHON} \
         wget \
         git \
         unzip \
@@ -55,14 +49,18 @@ RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*)
 
-# For CUDA profiling, TensorFlow requires CUPTI.
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
-
 # The following is not in the official tensorflow dockerfile but it is in every other tensorflow dockerfile I see.
 ENV CUDA_HOME /usr/local/cuda
 # export CUDA_HOME=/usr/local/cuda
 
-RUN curl https://bootstrap.pypa.io/get-pip.py | sudo -H ${PYTHON}
+# For CUDA profiling, TensorFlow requires CUPTI.
+ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+
+ARG PYTHON=python3.6
+ARG PIP=pip3
+RUN apt-get update && apt-get install -y \
+    ${PYTHON} \
+    python3-pip
 
 RUN ${PIP} --no-cache-dir install --upgrade \
     pip \
@@ -78,21 +76,20 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 #   tf-nightly-gpu
 # Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
 # Installs the latest version by default.
-ARG TF_PACKAGE=tensorflow-gpu
+ARG TF_PACKAGE=tf-nightly-gpu
 ARG TF_PACKAGE_VERSION=
-RUN ${PIP} install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
+RUN pip3 install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
 
-COPY bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
 
-RUN ${PIP} install jupyter matplotlib
-RUN ${PIP} install jupyter_http_over_ws
+RUN pip3 install jupyter matplotlib
+RUN pip3 install jupyter_http_over_ws
 RUN jupyter serverextension enable --py jupyter_http_over_ws
 
 # We will download supporting tools into the HOME (/root) directory.
 WORKDIR /root
 
-RUN ${PIP} install fastai opencv seaborn python-graphviz scikit-learn ipywidgets
+RUN pip3 install fastai opencv-python seaborn graphviz scikit-learn ipywidgets
 
 RUN mkdir -p /root/.torch/models
 RUN mkdir -p /root/.fastai/data
@@ -136,6 +133,7 @@ RUN ln -s /indl/lessons /notebooks/indl
 RUN rm -Rf /persist
 RUN mkdir -p /persist && chmod -R a+wrx /persist
 RUN ln -s /persist /notebooks/data
+RUN ln -s /persist /root/.fastai/data
 
 # Set the working directory for when the container is run.
 WORKDIR /notebooks

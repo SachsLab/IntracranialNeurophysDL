@@ -94,6 +94,14 @@ RUN pip3 install fastai opencv-python seaborn graphviz scikit-learn ipywidgets
 RUN mkdir -p /root/.torch/models
 RUN mkdir -p /root/.fastai/data
 
+# install jaxlib
+# JAX_PY_VER alternatives: cp27, cp35, cp36, cp37
+ARG JAX_PY_VER=cp36
+# JAX_CUDA_VER alternatives: cuda90, cuda92, cuda100
+ARG JAX_CUDA_VER=cuda100
+RUN pip3 install --upgrade https://storage.googleapis.com/jax-wheels/${JAX_CUDA_VER}/jaxlib-0.1.8-${JAX_PY_VER}-none-linux_x86_64.whl
+RUN pip3 install --upgrade jax  # install jax
+
 # You can test tensorflow-gpu in a --runtime=nvidia session with:
 # python -c "import tensorflow as tf; tf.test.is_gpu_available()"
 # Test pytorch in a --runtime=nvidia session with:

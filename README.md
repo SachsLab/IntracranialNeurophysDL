@@ -2,22 +2,21 @@
 
 The SachsLab is preparing a short (~2-day) workshop on practical deep learning (DL) applied to intracranial
 neurophysiology. The goal of the workshop is to help attendees gain familiarity with technologies commonly used in DL
-(e.g., tensorflow on GPU, jupyter notebooks), to understand DL programming paradigms (e.g., batch loading data), and to
-become proficient in the application of DL to intracranial neurophysiology. The workshop is intended for scientists and
-trainees who have a basic understanding of machine learning concepts, have basic familiarity with Python syntax, and are
-interested in applying deep learning to extracellular neurophysiology data. For learners who do not have an interest
-in these kinds of data but are interested in DL more generally, please feel free to reach out to Chad and he will be
-happy to direct you to some wonderful resources that are better suited to your interests.
+(e.g., keras/tensorflow on GPU, jupyter notebooks on the cloud),
+to understand DL programming paradigms (e.g., batch loading data),
+and to become proficient in building, training, and evaluating deep neural networks
+as applied to extracellular neurophysiology data. 
 
-In the workshop, attendees will learn how to run and interact with keras/tensorflow on a GPU either locally or on a
-remote server. They will learn how to load and process electrophysiology datasets (1 open ECoG dataset, 1 single-channel
-deep brain microelectrode dataset, and 3 multichannel (~192) intracortical microelectrode array datasets). After an
+They will learn how to load and process electrophysiology datasets (ECoG, single-channel
+deep brain microelectrode recordings, and multichannel (~192) intracortical microelectrode array datasets). After an
 introduction to DL, attendees will learn how to apply several DL algorithms and architectures to these types of data,
 and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the
-algorithms we aim to cover include convolutional neural nets (CNN), several flavours of recurrent neural nets (RNN),
-autoencoders, and transformer models. For each topic, attendees will work through prepared examples using real data and
-thus are expected to bring their own laptop and have configured their deep learning environment (instructions will be
-provided in the week before the workshop).
+algorithms we aim to cover include convolutional neural nets (CNN) and several flavours of recurrent neural nets (RNN).
+
+Attendees are expected to have a basic understanding of machine learning concepts, have basic familiarity with Python syntax,
+and have an interest in applying deep learning to extracellular neurophysiology data.
+For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own
+laptop and have configured their deep learning environment (instructions will be provided in the weeks before the workshop).
 
 # Table Of Contents
 

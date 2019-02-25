@@ -7,7 +7,7 @@ to understand DL programming paradigms (e.g., batch loading data),
 and to become proficient in building, training, and evaluating deep neural networks
 as applied to extracellular neurophysiology data. 
 
-They will learn how to load and process electrophysiology datasets (ECoG, single-channel
+Attendees will learn how to load and process electrophysiology datasets (ECoG, single-channel
 deep brain microelectrode recordings, and multichannel (~192) intracortical microelectrode array datasets). After an
 introduction to DL, attendees will learn how to apply several DL algorithms and architectures to these types of data,
 and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the

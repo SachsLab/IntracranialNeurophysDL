@@ -19,9 +19,9 @@ fs = 24414.0625 Hz.
 The scripts expect to be located in `./data/joeyo/` relative to your working
 directory.
 
-Start with `python data/joeyo/download.py`. This will download the entire dataset
+Start with `python data/joeyo/01_download.py`. This will download the entire dataset
 from Zenodo into the ./data/joeyo/download folder.
 Note that the entire dataset is 81.3 GB and downloading it could take a while.
 
-Then run `python data/joeyo/convert.py`. This will load each datafile, modify the
-data, then save it into ./data/joeyo/converted
+Then run `python data/joeyo/02_convert.py`. This will load each datafile, modify the
+data, then save it into ./data/joeyo/convert

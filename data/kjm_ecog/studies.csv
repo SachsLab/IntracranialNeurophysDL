@@ -1,0 +1,17 @@
+name,participants,md5
+fixation_highfreq,"s1,s2,s3,s4",9ef3ae01bd10fa318fabe7f1671ba039
+fixation_PAC,"BP,CC,HL,JC,JM,JP,UG,WC,WM,ZT",53bb098991aae4bb3cccc8e7544ac7ff
+fixation_pwrlaw,"AL,CA,CC,DE,FP,GC,GF,JM,MV,RH,UG",6c9c00009eb38f2fd9d04c6575dd6663
+motor_basic,"BP,CA,CC,DE,FP,GC,GF,HH,HL,JC,JF,JM,JP,JT,RH,RR,UG,WC,ZT",cf87d50299b950ba251cf210217bb0aa
+fingerflex,"BP,CC,GT,JC,JP,MV,WC,WM,ZT",8e44fef2a12ef42868b01a031f5b6350
+joystick_track,"FP,GF,RH,RR",08c54cfaffae83ccbd3ec5dbdeeb2382
+gestures,"BP,CA,CC,DE,WM",30de1a74cab10feb2c13e0591df31462
+imagery_basic,"BP,FP,HH,JC,JM,RH,RR",38981b0a728ab96b42f65ff784e197ef
+imagery_feedback,"AL,FP,HH,JC",dbf271d4b18becc0a354a718073ce5a0
+speech_basic,"BP,HL,IN,JC,WC,WW,ZT",3b7c52b532dbea4d7a98bfd0ce2576ca
+memory_nback,"AL,CA,CC,UG",408e98090a93c9f0ee58ac07c0b5a339
+visual_search,"JM,JT,RN,RR,WC",2a85384b8fe58e850d0bf724d08109d1
+faces_basic,"AA,AP,CA,DE,FP,HA,JA,JM,JT,MV,RN,RR,WC,ZT",812d92b2be0de466ba6c6683b53ea7f8
+faces_noise,"AP,CA,HA,JA,MV,WC,ZT",89271b2993b09c804f78b43fe92b47b0
+mouse_track,"FP,GC,RH,RR",28fa00d57f89ec1a289292c8362faf25
+speech_lists,"JC,WC,WM",5557d752a26ecfe4ca6a649e9ccdfb7c

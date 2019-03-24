@@ -18,20 +18,7 @@ and have an interest in applying deep learning to extracellular neurophysiology 
 For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own
 laptop and have configured their deep learning environment (instructions will be provided in the weeks before the workshop).
 
-# Table Of Contents
-
-* [Getting Started](#getting-started)
-    * [Environment](#environment)
-        * [Configuration](#configuration)
-    * [Working with the Workshop Notebooks](#working-with-the-workshop-notebooks)
-    * [Data Sources](#data-sources)
-* [Lesson Plan](#lesson-plan)
-    * [Lesson 1 - Working with intracranial extracellular microelectrode data in Tensorflow](#lesson-1---working-with-data-in-modern-deep-learning-platforms)
-    * [Lesson 2 - Neural networks for classification](#lesson-2---neural-networks-for-classification)
-
-# Getting Started
-
-## Environment
+### Libraries
 
 This repository contains resources for the SachsLab workshop on deep learning for the analysis of intracranial
 extracellular electrophysiology. The workshop is opinionated in its selection of development environment, deep learning
@@ -45,7 +32,7 @@ CUDA 9.2 or 10.0. We use Jupyter notebooks running on Python 3.6. The workshop u
 The instructions also include steps to add [PyTorch](https://pytorch.org/) which is another deep learning Python
 library, and a high-level API for PyTorch called [fast.ai](https://www.fast.ai/).
 
-### Configuration
+#### Configuration
 
 The lessons assume you have access to a machine with a CUDA-enabled nVidia GPU. Click below to get
 instructions for either a *local* configuration (i.e., your own desktop or laptop), or for a *remote* configuration
@@ -58,7 +45,7 @@ When you have finished configuring your environment, you should be able to inter
 Additionally, your environment should also have other notebooks for your reference, including
 "Introduction to TensorFlow", and the fast.ai course notebooks.
 
-## Working with the Workshop Notebooks
+### Working with the Workshop Notebooks
 
 The lessons comprise a series of Jupyter Notebooks, a.k.a. interactive python notebooks with file extension `.ipynb`.
 
@@ -74,7 +61,7 @@ development of python packages due to the poor (non-existent) support for debugg
 we use Jupyter notebooks here, you should strongly consider whether or not they are the right choice for your intended
 application. 
 
-## Data Sources
+### Data Sources
 
 We have curated several datasets specifically for this workshop. Please see the
 [data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md) for their descriptions.

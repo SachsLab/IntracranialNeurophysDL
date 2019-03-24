@@ -1,0 +1,22 @@
+name,participants
+fixation_HighFreq, "s1,s2,s3,s4"
+fixation_PAC,"BP,CC,HL,JC,JM,JP,UG,WC,WM,ZT"
+fixation_pwrlaw,"AL,CA,CC,DE,FP,GC,GF,JM,MV,RH,UG"
+motor_basic,"BP,CA,CC,DE,FP,GC,GF,HH,HL,JC,JF,JM,JP,JT,RH,RR,UG,WC,ZT"
+fingerflex,"BP,CC,GT,JC,JP,MV,WC,WM,ZT"
+joystick_track,"FP,GF,RH,RR"
+gestures,"BP,CA,CC,DE,WM"
+imagery_basic,"BP,FP,HH,JC,JM,RH,RR"
+imagery_feedbak,"AL,FP,HH,JC"
+speech_basic,"BP,HL,IN,JC,WC,WW,ZT"
+memory_nback,"AL,CA,CC,UG"
+visual_search,"JM,JT,RN,RR,WC"
+faces_basic,"AA,AP,CA,DE,FP,HA,JA,JM,JT,MV,RN,RR,WC,ZT"
+faces_noise,"AP,CA,HA,JA,MV,WC,ZT"
+mouse_track,"FP,GC,RH,RR"
+speech_lists,"JC,WC,WM"
+#ctmr,
+#dg,
+#loc,
+#toolbox,
+#xs_files,

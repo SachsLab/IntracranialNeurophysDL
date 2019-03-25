@@ -24,13 +24,14 @@ def download_from_web(remote_url, local_path, md5=None):
         else:
             print("{} already exists. Skipping.".format(local_path))
             return
-    r = requests.get(remote_url, stream=True, headers={'Connection': 'close'})  # stream=True does not download yet.
+    r = requests.get(remote_url, stream=True)
     total_size = int(r.headers.get('content-length', 0))
     chunk_size = 1024
     wrote = 0
+    print("Downloading to {}".format(local_path))
     with open(local_path, 'wb') as f:
         for data in tqdm.tqdm(r.iter_content(chunk_size=chunk_size), total=math.ceil(total_size // chunk_size),
-                              unit='KB', unit_scale=False):
+                              unit='kB', unit_scale=False):
             wrote = wrote + len(data)
             f.write(data)
     if total_size != 0 and wrote != total_size:

@@ -22,5 +22,7 @@ Note that the entire dataset is 7.6 GB and downloading it could take a while.
 This server can sometimes be quite slow when downloading with this script.
 It might be faster to download the data using your browser. 
 
-Then run `python data/kjm_ecog/02_convert.py`. This will load each datafile, modify the
-data, then save it into ./data/kjm_ecog/convert
+Then run `python data/kjm_ecog/02_extract.py`. This will unzip each file to its own folder.
+
+(TODO:) Then run `python data/kjm_ecog/03_convert.py`. This will perform preliminary processing
+ on the data and store the result in ./data/kjm_ecog/convert

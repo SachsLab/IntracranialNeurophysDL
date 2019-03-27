@@ -4,6 +4,10 @@ Created on Sun Jan 20 21:07:28 2019
 
 @author: Chadwick Boulay
 @author: Anahita Malvea
+
+This must be run from the ../.. directory (parent/parent)
+Note: Sometimes the next file will start unzipping before the previous one is finished.
+If the progress bar doesn't reach 100%, it might have continued to update a few lines below.
 """
 import csv
 import zipfile

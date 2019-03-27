@@ -4,6 +4,7 @@ Created on Sun Jan 20 21:07:28 2019
 
 @author: Chadwick Boulay
 @author: Anahita Malvea
+This must be run from the ../.. directory (parent/parent)
 """
 import csv, zipfile
 import numpy as np

@@ -105,18 +105,24 @@ def import_to_npype(subject_id):
     data_chunk = Chunk(block=Block(data=data, axes=(TimeAxis(times=tvec, nominal_rate=srate),
                                                     SpaceAxis(names=elec_names, positions=locs_contents['locs']))),
                        props=[Flags.is_signal])
+    data_chunk.props['source_url'] = 'file://' + str(data_fn)
 
     return Packet(chunks=OrderedDict({'markers': stim_chunk, 'signals': data_chunk}))
 
 
 if __name__ == "__main__":
     from neuropype.nodes import *
+    import logging
     import matplotlib.pyplot as plt
+
+
+    logging.basicConfig(level=logging.DEBUG)
 
     # Define segments around stimulus events.
     PSD_SEGMENT = [-0.3, 0.7]
     ERP_SEGMENT = [-0.2, 0.4]
     ERP_BASELINE = [-0.2, 0.05]
+    KEEP_F_BANDS = [[0, 57], [63, 117], [123, 177], [183, 201]]
 
     # Import the data from the mat file.
     pkt = import_to_npype('de')
@@ -124,7 +130,29 @@ if __name__ == "__main__":
 
     # Get broadband power
     bb = Segmentation(time_bounds=PSD_SEGMENT)(data=pkt)
-    bb = WelchSpectrum()(data=pkt)
-    # TODO: normalize
-    # TODO: log
+    bb = WelchSpectrum(segment_samples=0.5, unit='seconds')(data=bb)
+    bb = StripSingletonAxis(axis='time')(data=bb)
+    bb = Divide()(data1=bb,
+                  data2=Mean(axis='instance')(data=bb))
+    bb = Logarithm()(data=bb)
     # In KJM method, here is where he does PCA excluding 60 Hz harmonics and > 200 Hz
+    # We will similarly eliminate these frequencies, but then do TensorDecompositionAnalysis
+    fvec = bb.chunks['signals'].block.axes['frequency'].frequencies
+    b_keep = np.zeros_like(fvec).astype(bool)
+    for f_band in KEEP_F_BANDS:
+        b_keep = np.logical_or(b_keep, np.logical_and(f_band[0] < fvec, fvec < f_band[1]))
+    keep_inds = np.where(b_keep)[0]
+    bb = SelectRange(axis='frequency', selection=keep_inds)(data=bb)
+    tca_node = TensorDecomposition(num_components=10)
+    tca_res = tca_node(data=bb, return_outputs='all')
+
+    # TODO: Debug this plotting node, also add option to output to notebook.
+    tca_report = TensorDecompositionPlot()(data=tca_res['model'], return_outputs='all')['report']
+    file_info = FileInfoExtraction()(data=bb, return_outputs='all')['report']
+    ReportGeneration(report_name=str(DATA_ROOT / 'test.html'))(
+        file_info=file_info,
+        in0=tca_report)
+
+    # Basic ML
+    predictions = LogisticRegression(cond_field='Marker', multiclass='multinomial', max_iter=1000)(data=tca_res['data'])
+    MeasureLoss(cond_field='Marker', loss_metric='MCR')(data=predictions)

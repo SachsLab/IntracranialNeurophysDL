@@ -93,7 +93,7 @@ def import_to_npype(subject_id):
     # Get the channel labels and locations.
     locs_fn = DATA_ROOT / 'locs' / (subject_id + '_xslocs.mat')
     locs_contents = scipy.io.loadmat(locs_fn)  # 'elcode' and 'locs'
-    elec_names = np.array([AREA_LABELS[el_code - 1] for el_code in locs_contents['elcode'].reshape(-1)])
+    elec_names = np.array([AREA_LABELS[el_code - 1] for el_code in locs_contents['elcode'].reshape(-1)], dtype=object)
     # Append a .N to each electrode name, where N is the count of electrodes with that name.
     # The below method is a little silly, but more straightforward approaches did not work in interactive debug mode.
     name_counts = {_: 0 for _ in np.unique(elec_names)}
@@ -115,10 +115,10 @@ if __name__ == "__main__":
     import logging
     import matplotlib.pyplot as plt
 
-
     logging.basicConfig(level=logging.DEBUG)
 
     # Define segments around stimulus events.
+    TVLDA_SEGMENT = [-0.2, 0.6]
     PSD_SEGMENT = [-0.3, 0.7]
     ERP_SEGMENT = [-0.2, 0.4]
     ERP_BASELINE = [-0.2, 0.05]
@@ -128,7 +128,22 @@ if __name__ == "__main__":
     pkt = import_to_npype('de')
     pkt = Rereferencing()(data=pkt)  # CAR
 
-    # Get broadband power
+    # TVLDA method
+    # TODO: Notch harmonics --> Comb filter
+    tvlda = IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=pkt)
+    tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
+    tvlda = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=tvlda)
+    tvlda = ShiftedWindows(win_len=0.05, offset_len=0.05, unit='seconds')(data=tvlda)
+    tvlda = Variance(axis='time')(data=tvlda)
+    tvlda = StripSingletonAxis(axis='time')(data=tvlda)
+    tvlda_sig = ExtractStreams(stream_names=['signals'])(data=tvlda)
+    tvlda_sig = OverrideAxis(old_axis='instance', new_axis='time')(data=tvlda_sig)
+    tvlda = MergeStreams(replace_if_exists=True)(data1=tvlda, data2=tvlda_sig)
+    tvlda = Logarithm()(data=tvlda)
+    tvlda = Segmentation(time_bounds=TVLDA_SEGMENT)(data=tvlda)
+    #TODO: TVLDA
+
+    # KJM Method
     bb = Segmentation(time_bounds=PSD_SEGMENT)(data=pkt)
     bb = WelchSpectrum(segment_samples=0.5, unit='seconds')(data=bb)
     bb = StripSingletonAxis(axis='time')(data=bb)
@@ -143,11 +158,11 @@ if __name__ == "__main__":
         b_keep = np.logical_or(b_keep, np.logical_and(f_band[0] < fvec, fvec < f_band[1]))
     keep_inds = np.where(b_keep)[0]
     bb = SelectRange(axis='frequency', selection=keep_inds)(data=bb)
-    tca_node = TensorDecomposition(num_components=10)
+    tca_node = TensorDecomposition(num_components=20)
     tca_res = tca_node(data=bb, return_outputs='all')
 
     # TODO: Debug this plotting node, also add option to output to notebook.
-    tca_report = TensorDecompositionPlot()(data=tca_res['model'], return_outputs='all')['report']
+    tca_report = TensorDecompositionPlot(iv_field='Marker')(data=tca_res['model'], return_outputs='all')['report']
     file_info = FileInfoExtraction()(data=bb, return_outputs='all')['report']
     ReportGeneration(report_name=str(DATA_ROOT / 'test.html'))(
         file_info=file_info,

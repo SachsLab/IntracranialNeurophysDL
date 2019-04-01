@@ -113,6 +113,7 @@ def import_to_npype(subject_id):
 if __name__ == "__main__":
     from neuropype.nodes import *
     import logging
+    from custom import VaryingLDA
     import matplotlib.pyplot as plt
 
     logging.basicConfig(level=logging.DEBUG)
@@ -127,21 +128,31 @@ if __name__ == "__main__":
     # Import the data from the mat file.
     pkt = import_to_npype('de')
     pkt = Rereferencing()(data=pkt)  # CAR
+    pkt = IIRFilter(frequencies=[1], mode='highpass', offline_filtfilt=True)(data=pkt)
 
     # TVLDA method
-    # TODO: Notch harmonics --> Comb filter
+    # Notch filter out powerline noise. TODO: Harmonics with a Comb filter.
     tvlda = IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=pkt)
-    tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
+    # Spectrally whiten the data with AR model convolution.
+    # See https://martinos.org/mne/stable/auto_examples/time_frequency/plot_temporal_whitening.html
+    # tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
+    # Band-pass to keep (high gamma) broadband power
     tvlda = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=tvlda)
+    # Get non-overlapping 0.05 s windows.
     tvlda = ShiftedWindows(win_len=0.05, offset_len=0.05, unit='seconds')(data=tvlda)
+    # Calculate variance within each window.
     tvlda = Variance(axis='time')(data=tvlda)
+    # Clean up windowing to get back time series, now at 20 Hz (1 / 0.05).
     tvlda = StripSingletonAxis(axis='time')(data=tvlda)
     tvlda_sig = ExtractStreams(stream_names=['signals'])(data=tvlda)
     tvlda_sig = OverrideAxis(old_axis='instance', new_axis='time')(data=tvlda_sig)
     tvlda = MergeStreams(replace_if_exists=True)(data1=tvlda, data2=tvlda_sig)
+    # Log of variance gives an approximation of power.
     tvlda = Logarithm()(data=tvlda)
+    tvlda = ZScoring(axis='time')(data=tvlda)
+    # Chop up data around stimulus onset.
     tvlda = Segmentation(time_bounds=TVLDA_SEGMENT)(data=tvlda)
-    #TODO: TVLDA
+    tvlda_res = VaryingLDA(cond_field='Marker')(data=tvlda, return_outputs='all')
 
     # KJM Method
     bb = Segmentation(time_bounds=PSD_SEGMENT)(data=pkt)

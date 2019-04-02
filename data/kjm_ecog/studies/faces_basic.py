@@ -135,7 +135,7 @@ if __name__ == "__main__":
     tvlda = IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=pkt)
     # Spectrally whiten the data with AR model convolution.
     # See https://martinos.org/mne/stable/auto_examples/time_frequency/plot_temporal_whitening.html
-    # tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
+    tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
     # Band-pass to keep (high gamma) broadband power
     tvlda = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=tvlda)
     # Get non-overlapping 0.05 s windows.
@@ -152,7 +152,8 @@ if __name__ == "__main__":
     tvlda = ZScoring(axis='time')(data=tvlda)
     # Chop up data around stimulus onset.
     tvlda = Segmentation(time_bounds=TVLDA_SEGMENT)(data=tvlda)
-    tvlda_res = VaryingLDA(cond_field='Marker')(data=tvlda, return_outputs='all')
+    tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker')(data=tvlda, return_outputs='all')
+    MeasureLoss(cond_field='Marker')(data=tvlda_res['data'])
 
     # KJM Method
     bb = Segmentation(time_bounds=PSD_SEGMENT)(data=pkt)

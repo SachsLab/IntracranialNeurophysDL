@@ -70,7 +70,7 @@ class VaryingLDA(Node):
         enabled, the model will persist, but there is a chance that the model
         is incompatible when input data format to this node has changed.
         """, verbose_name='do not reset model', expert=True)
-    independent_axes = EnumPort(default="time", domain=list(axis_names).remove('instance'), help="""
+    independent_axis = EnumPort(default="time", domain=list(axis_names).remove('instance'), help="""
         Axis to isolate. LDA will be performed for each entry in this axis independently.
         For example, if this is set to 'time', then LDA will be performed for each time point independently.
         The final LDA scores come from summing the LDA across entries in this axis for each class.
@@ -132,10 +132,11 @@ class VaryingLDA(Node):
             args = {'solver': self.solver, 'priors': priors,
                     'tol': self.tolerance}
 
-            view = X.block[axis_definers[self.independent_axes], instance, collapsedaxis]
+            view = X.block[axis_definers[self.independent_axis], instance, collapsedaxis]
             n_models, n_trials, n_features = view.shape
 
-            self.M[X_n] = []
+            # Train an independent model for each entry in the self.independent_axis
+            models = []
             for m_ix in range(n_models):
                 # Initialize the model
                 temp = LDA(**args)
@@ -143,27 +144,72 @@ class VaryingLDA(Node):
                 # the predicted value is one-dimensional (per trial, so it's a vector)
                 temp.fit(view.data[m_ix], y.reshape(-1))
                 # Save the result
-                self.M[X_n].append(temp)
+                models.append(temp)
 
-        # this line is the standard recipe to apply a model to some data, and
-        # update the data with predictions in the process (if the model is not
-        # trained, nothing will happen)
-        X_view = X.block[axis_definers[self.independent_axes], instance, collapsedaxis]
-        n_models, n_trials, n_feats = X_view.shape
+            if False:
+                # We can decompose the model weights to get a dimensionality-reduced model
+                # filters are PCA dimensionality reduction on features:
+                #   (np.dot(y[1 x channels], filt) -> x[1 x features])
+                #   Though we have one filter per class. I don't know how to handle that when
+                #   our coefs also broadcast into N classes.
+                # patterns is the inverse of the filters.
+                # coefs are the LDA coefficients to be applied to the reduced channel space.
+                filters = []
+                patterns = []
+                coefs = []
+                weights = [_.coef_ for _ in models]
+                weights = np.concatenate(weights, axis=-1).reshape(weights[0].shape[0], n_features, -1)
+                weights = np.transpose(weights, [0, 2, 1])
+                n_comps = 5
+                for class_ix, Wy in enumerate(weights):
+                    u, s, vh = np.linalg.svd(Wy, full_matrices=True)
+                    # assert np.allclose(Wy, np.dot(u * s, vh[:s.size, :]))
+                    filters.append(vh[:, :n_comps])
+                    vh_inv = np.linalg.pinv(vh)
+                    patterns.append(np.transpose(vh_inv)[:, :n_comps])
+                    coefs.append(np.dot(Wy, vh_inv[:, :n_comps]))
 
-        # Do the 0th model so we know what the output will be like.
-        m_ix = 0
-        view = X.block[axis_definers[self.independent_axes][m_ix], instance, collapsedaxis]
-        view = view.reshape(view.axes[1:])
-        pred_chunk = apply_predictor(self.M[X_n][m_ix], Chunk(view), 'scores', inplace=False)
+                # Put the coefficients back into models
+                coefs = np.concatenate(coefs, axis=-1).reshape(n_models, n_comps, -1)
+                coefs = np.transpose(coefs, [0, 2, 1])
+                for m_ix, coef in enumerate(coefs):
+                    models[m_ix].coef_ = coef
 
-        out_block = Block(data=pred_chunk.block.data, axes=pred_chunk.block.axes)
+                # Reshape the filters and patterns for easier access.
+                filters = np.concatenate(filters, axis=-1).reshape(n_features, n_comps, -1)
 
-        for m_ix in range(1, n_models):
-            view = X.block[axis_definers[self.independent_axes][m_ix], instance, collapsedaxis]
-            view = view.reshape(view.axes[1:])
-            pred_chunk = apply_predictor(self.M[X_n][m_ix], Chunk(view), 'scores', inplace=False)
-            out_block.data += pred_chunk.block.data
+            # Save the result
+            self.M[X_n] = {
+                'models': models,
+                # 'filters': filters, 'patterns': patterns
+            }
+
+        #
+        X_view = X.block[axis_definers[self.independent_axis], instance, collapsedaxis]
+        n_models, n_trials, n_features = X_view.shape
+        models = self.M[X_n]['models']
+        n_classes = models[0].coef_.shape[0]
+
+        names = models[0].classes_.tolist()
+        proba_ax = FeatureAxis(names=names,
+                               properties=[ValueProperty.NORMALIZED] * n_classes,
+                               sampling_distrib=[DistributionType.BERNOULLI] * n_classes)
+        out_block = Block(data=np.zeros((n_trials, n_classes)),
+                          axes=(X_view.axes[1], proba_ax))
+        for m_ix, X in enumerate(X_view.data):
+            out_block.data += np.dot(X, models[m_ix].coef_.T) + models[m_ix].intercept_
+        out_block.data /= n_models
+
+        # Convert to probabilities
+        out_block.data *= -1
+        np.exp(out_block.data, out_block.data)
+        out_block.data += 1
+        np.reciprocal(out_block.data, out_block.data)
+        if n_classes == 2:  # binary case
+            out_block.data = np.column_stack([1 - out_block.data, out_block.data])
+        else:
+            # OvR normalization, like LibLinear's predict_probability
+            out_block.data /= out_block.data.sum(axis=1).reshape((out_block.data.shape[0], -1))
 
         v.chunks[X_n].block = out_block
 

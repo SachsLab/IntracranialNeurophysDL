@@ -152,7 +152,8 @@ if __name__ == "__main__":
     tvlda = ZScoring(axis='time')(data=tvlda)
     # Chop up data around stimulus onset.
     tvlda = Segmentation(time_bounds=TVLDA_SEGMENT)(data=tvlda)
-    tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker')(data=tvlda, return_outputs='all')
+    tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker',
+                           n_components=5)(data=tvlda, return_outputs='all')
     MeasureLoss(cond_field='Marker')(data=tvlda_res['data'])
 
     # KJM Method

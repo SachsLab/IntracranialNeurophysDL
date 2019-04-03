@@ -81,8 +81,10 @@ class VaryingLDA(Node):
         instance data field that contains the conditions to be discriminated.
         This parameter will be ignored if the packet has previously been processed
         by a BakeDesignMatrix node.""", expert=True)
+    n_components = IntPort(default=None, help="""The number of components to keep in the
+        reduced model""")
 
-    def __init__(self, probabilistic: Union[bool, None, Type[Keep]] = Keep, solver: Union[str, None, Type[Keep]] = Keep, class_weights: Union[object, None, Type[Keep]] = Keep, tolerance: Union[float, None, Type[Keep]] = Keep, initialize_once: Union[bool, None, Type[Keep]] = Keep, dont_reset_model: Union[bool, None, Type[Keep]] = Keep, verbosity: Union[int, None, Type[Keep]] = Keep, cond_field: Union[str, None, Type[Keep]] = Keep, **kwargs):
+    def __init__(self, probabilistic: Union[bool, None, Type[Keep]] = Keep, solver: Union[str, None, Type[Keep]] = Keep, class_weights: Union[object, None, Type[Keep]] = Keep, tolerance: Union[float, None, Type[Keep]] = Keep, initialize_once: Union[bool, None, Type[Keep]] = Keep, dont_reset_model: Union[bool, None, Type[Keep]] = Keep, verbosity: Union[int, None, Type[Keep]] = Keep, cond_field: Union[str, None, Type[Keep]] = Keep, n_components: Union[int, None, Type[Keep]] = Keep, **kwargs):
         """Create a new node. Accepts initial values for the ports."""
         # unlike many other NeuroPype nodes, machine learning nodes usually do
         # not support multiple parallel data streams (these are supposed to have
@@ -90,7 +92,7 @@ class VaryingLDA(Node):
         # exception is that there may be a data stream containing the labels if
         # the model shall be retrained; still, the state holds only a single model
         self.M = {}  # predictive model
-        super().__init__(probabilistic=probabilistic, solver=solver, class_weights=class_weights, tolerance=tolerance, initialize_once=initialize_once, dont_reset_model=dont_reset_model, verbosity=verbosity, cond_field=cond_field, **kwargs)
+        super().__init__(probabilistic=probabilistic, solver=solver, class_weights=class_weights, tolerance=tolerance, initialize_once=initialize_once, dont_reset_model=dont_reset_model, verbosity=verbosity, cond_field=cond_field, n_components=n_components, **kwargs)
 
     @classmethod
     def description(cls):
@@ -146,43 +148,47 @@ class VaryingLDA(Node):
                 # Save the result
                 models.append(temp)
 
-            if False:
+            self.M[X_n] = {
+                'models': models,
+                'filters': np.eye(n_features),
+                'patterns': np.eye(n_features)
+            }
+
+            n_comps = min(self.n_components or np.Inf, n_models)
+            if n_comps < n_models:
                 # We can decompose the model weights to get a dimensionality-reduced model
-                # filters are PCA dimensionality reduction on features:
-                #   (np.dot(y[1 x channels], filt) -> x[1 x features])
-                #   Though we have one filter per class. I don't know how to handle that when
-                #   our coefs also broadcast into N classes.
-                # patterns is the inverse of the filters.
-                # coefs are the LDA coefficients to be applied to the reduced channel space.
+                import scipy.linalg
+                from sklearn.utils.extmath import svd_flip
                 filters = []
                 patterns = []
                 coefs = []
-                weights = [_.coef_ for _ in models]
-                weights = np.concatenate(weights, axis=-1).reshape(weights[0].shape[0], n_features, -1)
-                weights = np.transpose(weights, [0, 2, 1])
-                n_comps = 5
-                for class_ix, Wy in enumerate(weights):
-                    u, s, vh = np.linalg.svd(Wy, full_matrices=True)
-                    # assert np.allclose(Wy, np.dot(u * s, vh[:s.size, :]))
-                    filters.append(vh[:, :n_comps])
+                weights = np.stack([_.coef_ for _ in models])
+                for class_ix in range(weights.shape[1]):
+                    Wy = weights[:, class_ix, :]
+                    # A PCA would center Wy first, otherwise this is identical.
+                    u, s, vh = scipy.linalg.svd(Wy, full_matrices=False)
+                    u, vh = svd_flip(u, vh)  # flip eigenvectors' sign to enforce deterministic output
+                    # assert np.allclose(Wy, np.dot(u[:, :n_models] * s[:n_models], vh[:n_models, :]))
+                    coefs.append(np.dot(u[:, :n_comps] * s[:n_comps], vh[:n_comps, :]))
+                    # Also save filters and patterns for visualization if necessary.
+                    filters.append(vh[:n_comps, :])  # same as pca.components_
+                    # PCA filters are always orthogonal, so that means filter.T is equal to its inverse...
+                    # which means that the patterns are equal to the filters.
+                    # I'll leave the calculation below as an example for what should be done when not orthogonal.
                     vh_inv = np.linalg.pinv(vh)
-                    patterns.append(np.transpose(vh_inv)[:, :n_comps])
-                    coefs.append(np.dot(Wy, vh_inv[:, :n_comps]))
+                    patterns.append(np.transpose(vh_inv)[:n_comps, :])
 
                 # Put the coefficients back into models
-                coefs = np.concatenate(coefs, axis=-1).reshape(n_models, n_comps, -1)
-                coefs = np.transpose(coefs, [0, 2, 1])
-                for m_ix, coef in enumerate(coefs):
-                    models[m_ix].coef_ = coef
+                coefs = np.stack(coefs)
+                for m_ix in range(n_models):
+                    models[m_ix].coef_ = coefs[:, m_ix, :]
 
-                # Reshape the filters and patterns for easier access.
-                filters = np.concatenate(filters, axis=-1).reshape(n_features, n_comps, -1)
-
-            # Save the result
-            self.M[X_n] = {
-                'models': models,
-                # 'filters': filters, 'patterns': patterns
-            }
+                # Save the result
+                self.M[X_n].update({
+                    'models': models,
+                    'filters': np.stack(filters),
+                    'patterns': np.stack(patterns)
+                })
 
         #
         X_view = X.block[axis_definers[self.independent_axis], instance, collapsedaxis]

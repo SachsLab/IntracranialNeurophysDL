@@ -117,7 +117,6 @@ class VaryingLDA(Node):
             # the startup time
             from sklearn.discriminant_analysis import \
                 LinearDiscriminantAnalysis as LDA
-            logger.info("Linear Discriminant Analysis: now training...")
 
             # (we only need this because of an inconsistency in how prior
             # class weights in LDA happen to be handled)
@@ -130,28 +129,33 @@ class VaryingLDA(Node):
             else:
                 priors = None
 
-            # set up the model parameters
-            args = {'solver': self.solver, 'priors': priors,
-                    'tol': self.tolerance}
-
-            view = X.block[axis_definers[self.independent_axis], instance, collapsedaxis]
+            if X.block.ndim > 3:
+                view = X.block[axis_definers[self.independent_axis], instance, collapsedaxis]
+            else:
+                # Keep the last axis in its native type.
+                view = X.block[axis_definers[self.independent_axis], instance, ...]
             n_models, n_trials, n_features = view.shape
 
             # Train an independent model for each entry in the self.independent_axis
+            logger.info("Now training {} LDAs, 1 for each element in {}.".format(n_models, view.axes[0].type_str))
             models = []
             for m_ix in range(n_models):
                 # Initialize the model
-                temp = LDA(**args)
+                temp = LDA(solver=self.solver, priors=priors, tol=self.tolerance)
                 # finally fit the model given the data -- this line assumes that
-                # the predicted value is one-dimensional (per trial, so it's a vector)
+                # the predicted value is one-dimensional (per trial, so it's a vector over trials)
                 temp.fit(view.data[m_ix], y.reshape(-1))
                 # Save the result
                 models.append(temp)
 
+            # TODO: First output axis should be classes (i.e., conditional mean of instance axis.)
+            out_axes = (InstanceAxis(np.arange(len(models[0].classes_)), models[0].classes_),
+                        view.axes[0]) + view.axes[2:]
             self.M[X_n] = {
                 'models': models,
                 'filters': np.eye(n_features),
-                'patterns': np.eye(n_features)
+                'patterns': np.eye(n_features),
+                'axes': out_axes
             }
 
             n_comps = min(self.n_components or np.Inf, n_models)
@@ -159,9 +163,11 @@ class VaryingLDA(Node):
                 # We can decompose the model weights to get a dimensionality-reduced model
                 import scipy.linalg
                 from sklearn.utils.extmath import svd_flip
-                filters = []
-                patterns = []
-                coefs = []
+                # For the decomposed (dim-reduced) model, we will save the ...
+                ind_weights = []  # independent axis weights (e.g., weights over time in time-varying LDA)
+                filters = []      # the 'other' axis weights (if space, this is a spatial filter)
+                patterns = []     # the patterns are the same as filters in PCA because orthogonality gives X = inv(X).T
+                coefs = []        # the matrix product of ind_weights and filters
                 weights = np.stack([_.coef_ for _ in models])
                 for class_ix in range(weights.shape[1]):
                     Wy = weights[:, class_ix, :]
@@ -169,16 +175,16 @@ class VaryingLDA(Node):
                     u, s, vh = scipy.linalg.svd(Wy, full_matrices=False)
                     u, vh = svd_flip(u, vh)  # flip eigenvectors' sign to enforce deterministic output
                     # assert np.allclose(Wy, np.dot(u[:, :n_models] * s[:n_models], vh[:n_models, :]))
-                    coefs.append(np.dot(u[:, :n_comps] * s[:n_comps], vh[:n_comps, :]))
-                    # Also save filters and patterns for visualization if necessary.
+                    ind_weights.append(u[:, :n_comps] * s[:n_comps])
                     filters.append(vh[:n_comps, :])  # same as pca.components_
+                    coefs.append(np.dot(ind_weights[-1], filters[-1]))
                     # PCA filters are always orthogonal, so that means filter.T is equal to its inverse...
                     # which means that the patterns are equal to the filters.
                     # I'll leave the calculation below as an example for what should be done when not orthogonal.
                     vh_inv = np.linalg.pinv(vh)
                     patterns.append(np.transpose(vh_inv)[:n_comps, :])
 
-                # Put the coefficients back into models
+                # Put the coefficients back into LDA models
                 coefs = np.stack(coefs)
                 for m_ix in range(n_models):
                     models[m_ix].coef_ = coefs[:, m_ix, :]
@@ -186,6 +192,7 @@ class VaryingLDA(Node):
                 # Save the result
                 self.M[X_n].update({
                     'models': models,
+                    'ind_weights': np.stack(ind_weights),
                     'filters': np.stack(filters),
                     'patterns': np.stack(patterns)
                 })

@@ -131,55 +131,55 @@ if __name__ == "__main__":
     pkt = IIRFilter(frequencies=[1], mode='highpass', offline_filtfilt=True)(data=pkt)
 
     # TVLDA method
-    # Notch filter out powerline noise. TODO: Harmonics with a Comb filter.
-    tvlda = IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=pkt)
+
+    # Notch filter out powerline noise. TODO: Also filter out harmonics with a Comb filter.
+    pkt1 = IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=pkt)
+
     # Spectrally whiten the data with AR model convolution.
     # See https://martinos.org/mne/stable/auto_examples/time_frequency/plot_temporal_whitening.html
-    tvlda = SpectrallyWhitenTimeSeries(order=10)(data=tvlda)
-    # Band-pass to keep (high gamma) broadband power
-    tvlda = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=tvlda)
+    pkt1 = SpectrallyWhitenTimeSeries(order=10)(data=pkt1)
+
+    # Band-pass to keep only (high gamma) broadband power
+    pkt1 = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=pkt1)
+
     # Get non-overlapping 0.05 s windows.
-    tvlda = ShiftedWindows(win_len=0.05, offset_len=0.05, unit='seconds')(data=tvlda)
+    pkt1 = ShiftedWindows(win_len=0.05, offset_len=0.05, unit='seconds')(data=pkt1)
+
     # Calculate variance within each window.
-    tvlda = Variance(axis='time')(data=tvlda)
+    pkt1 = Variance(axis='time')(data=pkt1)
+
     # Clean up windowing to get back time series, now at 20 Hz (1 / 0.05).
-    tvlda = StripSingletonAxis(axis='time')(data=tvlda)
-    tvlda_sig = ExtractStreams(stream_names=['signals'])(data=tvlda)
-    tvlda_sig = OverrideAxis(old_axis='instance', new_axis='time')(data=tvlda_sig)
-    tvlda = MergeStreams(replace_if_exists=True)(data1=tvlda, data2=tvlda_sig)
+    pkt1 = StripSingletonAxis(axis='time')(data=pkt1)
+    pkt1_sig = ExtractStreams(stream_names=['signals'])(data=pkt1)
+    pkt1_sig = OverrideAxis(old_axis='instance', new_axis='time')(data=pkt1_sig)
+    pkt1 = MergeStreams(replace_if_exists=True)(data1=pkt1, data2=pkt1_sig)
+
     # Log of variance gives an approximation of power.
-    tvlda = Logarithm()(data=tvlda)
-    tvlda = ZScoring(axis='time')(data=tvlda)
-    # Chop up data around stimulus onset.
-    tvlda = Segmentation(time_bounds=TVLDA_SEGMENT)(data=tvlda)
+    pkt1 = Logarithm()(data=pkt1)
+    pkt1 = ZScoring(axis='time')(data=pkt1)
+
+    # Segment data around stimulus onset.
+    pkt1 = Segmentation(time_bounds=TVLDA_SEGMENT)(data=pkt1)
+
+    # Classify data using time-varying LDA.
     tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker',
-                           n_components=5)(data=tvlda, return_outputs='all')
+                           n_components=5)(data=pkt1, return_outputs='all')
     MeasureLoss(cond_field='Marker')(data=tvlda_res['data'])
+    tvlda_report = TensorDecompositionPlot(iv_field='Marker')(data=tvlda_res['model'], return_outputs='all')['report']
 
-    # KJM Method
-    bb = Segmentation(time_bounds=PSD_SEGMENT)(data=pkt)
-    bb = WelchSpectrum(segment_samples=0.5, unit='seconds')(data=bb)
-    bb = StripSingletonAxis(axis='time')(data=bb)
-    bb = Divide()(data1=bb,
-                  data2=Mean(axis='instance')(data=bb))
-    bb = Logarithm()(data=bb)
-    # In KJM method, here is where he does PCA excluding 60 Hz harmonics and > 200 Hz
-    # We will similarly eliminate these frequencies, but then do TensorDecompositionAnalysis
-    fvec = bb.chunks['signals'].block.axes['frequency'].frequencies
-    b_keep = np.zeros_like(fvec).astype(bool)
-    for f_band in KEEP_F_BANDS:
-        b_keep = np.logical_or(b_keep, np.logical_and(f_band[0] < fvec, fvec < f_band[1]))
-    keep_inds = np.where(b_keep)[0]
-    bb = SelectRange(axis='frequency', selection=keep_inds)(data=bb)
+    # Visualize components using tensor decomposition
     tca_node = TensorDecomposition(num_components=20)
-    tca_res = tca_node(data=bb, return_outputs='all')
-
-    # TODO: Debug this plotting node, also add option to output to notebook.
+    tca_res = tca_node(data=pkt1, return_outputs='all')
     tca_report = TensorDecompositionPlot(iv_field='Marker')(data=tca_res['model'], return_outputs='all')['report']
-    file_info = FileInfoExtraction()(data=bb, return_outputs='all')['report']
+
+    # Visualize components using dPCA
+    dpca = DemixingPCA(cond_field='Marker')(data=pkt1)
+
+    file_info = FileInfoExtraction()(data=pkt1, return_outputs='all')['report']
     ReportGeneration(report_name=str(DATA_ROOT / 'test.html'))(
         file_info=file_info,
-        in0=tca_report)
+        in0=tvlda_report,
+        in1=tca_report)
 
     # Basic ML
     predictions = LogisticRegression(cond_field='Marker', multiclass='multinomial', max_iter=1000)(data=tca_res['data'])

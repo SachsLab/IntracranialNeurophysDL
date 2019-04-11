@@ -126,7 +126,7 @@ if __name__ == "__main__":
     KEEP_F_BANDS = [[0, 57], [63, 117], [123, 177], [183, 201]]
 
     # Import the data from the mat file.
-    pkt = import_to_npype('de')
+    pkt = import_to_npype('ca')
     pkt = Rereferencing()(data=pkt)  # CAR
     pkt = IIRFilter(frequencies=[1], mode='highpass', offline_filtfilt=True)(data=pkt)
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     # Spectrally whiten the data with AR model convolution.
     # See https://martinos.org/mne/stable/auto_examples/time_frequency/plot_temporal_whitening.html
-    pkt1 = SpectrallyWhitenTimeSeries(order=10)(data=pkt1)
+    # pkt1 = SpectrallyWhitenTimeSeries(order=10)(data=pkt1)
 
     # Band-pass to keep only (high gamma) broadband power
     pkt1 = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=pkt1)
@@ -165,15 +165,24 @@ if __name__ == "__main__":
     tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker',
                            n_components=5)(data=pkt1, return_outputs='all')
     MeasureLoss(cond_field='Marker')(data=tvlda_res['data'])
-    tvlda_report = TensorDecompositionPlot(iv_field='Marker')(data=tvlda_res['model'], return_outputs='all')['report']
+    tvlda_report = TensorDecompositionPlot(ident='tvldamodel', iv_field='Marker')(data=tvlda_res['model'],
+                                                                                  return_outputs='all')['report']
+
+    lda_node = LinearDiscriminantAnalysis(cond_field='Marker')
+    cv_lda = Crossvalidation(method=lda_node, cond_field='Marker')(data=pkt1, return_outputs='all')
+    lda_res = lda_node(data=pkt1, return_outputs='all')
+    MeasureLoss(cond_field='Marker')(data=lda_res['data'])
+
+    # Visualize components using dPCA
+    dpca_res = DemixingPCA(cond_field='Marker', labels='s',
+                           join={'stim': ['s', 'st'], 'time': ['t']})(data=pkt1, return_outputs='all')
+    temp = DPCAPlot(filename=str(DATA_ROOT / 'dpca.pdf'), margs_3d=['stim', 'stim', 'stim'])(data=dpca_res['model'])
 
     # Visualize components using tensor decomposition
     tca_node = TensorDecomposition(num_components=20)
     tca_res = tca_node(data=pkt1, return_outputs='all')
-    tca_report = TensorDecompositionPlot(iv_field='Marker')(data=tca_res['model'], return_outputs='all')['report']
-
-    # Visualize components using dPCA
-    dpca = DemixingPCA(cond_field='Marker')(data=pkt1)
+    tca_report = TensorDecompositionPlot(iv_field='Marker', n_components=5)(data=tca_res['model'],
+                                                                            return_outputs='all')['report']
 
     file_info = FileInfoExtraction()(data=pkt1, return_outputs='all')['report']
     ReportGeneration(report_name=str(DATA_ROOT / 'test.html'))(
@@ -182,5 +191,5 @@ if __name__ == "__main__":
         in1=tca_report)
 
     # Basic ML
-    predictions = LogisticRegression(cond_field='Marker', multiclass='multinomial', max_iter=1000)(data=tca_res['data'])
-    MeasureLoss(cond_field='Marker', loss_metric='MCR')(data=predictions)
+    # predictions = LogisticRegression(cond_field='Marker', multiclass='multinomial', max_iter=1000)(data=tca_res['data'])
+    # MeasureLoss(cond_field='Marker', loss_metric='MCR')(data=predictions)

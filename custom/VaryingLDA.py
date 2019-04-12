@@ -48,6 +48,10 @@ class VaryingLDA(Node):
         SVD. Using a larger value will more aggressively prune features, but
         can make the difference between it working or not.
         """, verbose_name='rank estimation threshold (if svd)', expert=True)
+    shrinkage = BoolPort(False, """Whether or not to use L1 regularization.
+        A fast automatic method is used to determine the
+        regularization parameter (using the Ledoit-Wolf method).
+        """, verbose_name='regularization strength', expert=True)
     # this parameter is customarily added to NeuroPype nodes to allow the user
     # to choose whether the model should be re-calibrated when another dataset
     # is passed through, or whether it should only perform predictions on the
@@ -84,7 +88,7 @@ class VaryingLDA(Node):
     n_components = IntPort(default=None, help="""The number of components to keep in the
         reduced model""")
 
-    def __init__(self, probabilistic: Union[bool, None, Type[Keep]] = Keep, solver: Union[str, None, Type[Keep]] = Keep, class_weights: Union[object, None, Type[Keep]] = Keep, tolerance: Union[float, None, Type[Keep]] = Keep, initialize_once: Union[bool, None, Type[Keep]] = Keep, dont_reset_model: Union[bool, None, Type[Keep]] = Keep, verbosity: Union[int, None, Type[Keep]] = Keep, cond_field: Union[str, None, Type[Keep]] = Keep, n_components: Union[int, None, Type[Keep]] = Keep, **kwargs):
+    def __init__(self, probabilistic: Union[bool, None, Type[Keep]] = Keep, solver: Union[str, None, Type[Keep]] = Keep, class_weights: Union[object, None, Type[Keep]] = Keep, tolerance: Union[float, None, Type[Keep]] = Keep, shrinkage: Union[bool, None, Type[Keep]] = Keep, initialize_once: Union[bool, None, Type[Keep]] = Keep, dont_reset_model: Union[bool, None, Type[Keep]] = Keep, verbosity: Union[int, None, Type[Keep]] = Keep, cond_field: Union[str, None, Type[Keep]] = Keep, n_components: Union[int, None, Type[Keep]] = Keep, **kwargs):
         """Create a new node. Accepts initial values for the ports."""
         # unlike many other NeuroPype nodes, machine learning nodes usually do
         # not support multiple parallel data streams (these are supposed to have
@@ -92,7 +96,7 @@ class VaryingLDA(Node):
         # exception is that there may be a data stream containing the labels if
         # the model shall be retrained; still, the state holds only a single model
         self.M = {}  # predictive model
-        super().__init__(probabilistic=probabilistic, solver=solver, class_weights=class_weights, tolerance=tolerance, initialize_once=initialize_once, dont_reset_model=dont_reset_model, verbosity=verbosity, cond_field=cond_field, n_components=n_components, **kwargs)
+        super().__init__(probabilistic=probabilistic, solver=solver, class_weights=class_weights, tolerance=tolerance, shrinkage=shrinkage, initialize_once=initialize_once, dont_reset_model=dont_reset_model, verbosity=verbosity, cond_field=cond_field, n_components=n_components, **kwargs)
 
     @classmethod
     def description(cls):
@@ -138,10 +142,14 @@ class VaryingLDA(Node):
 
             # Train an independent model for each entry in the self.independent_axis
             logger.info("Now training {} LDAs, 1 for each element in {}.".format(n_models, view.axes[0].type_str))
+            lda_args = {'solver': self.solver, 'priors': priors,
+                        'tol': self.tolerance}
+            if self.shrinkage:
+                lda_args.update(shrinkage='auto')
             models = []
             for m_ix in range(n_models):
                 # Initialize the model
-                temp = LDA(solver=self.solver, priors=priors, tol=self.tolerance)
+                temp = LDA(**lda_args)
                 # finally fit the model given the data -- this line assumes that
                 # the predicted value is one-dimensional (per trial, so it's a vector over trials)
                 temp.fit(view.data[m_ix], y.reshape(-1))
@@ -235,7 +243,7 @@ class VaryingLDA(Node):
         """Callback to reset internal state when an input wire has been
         changed."""
         if not self.dont_reset_model:
-            self.M = None
+            self.M = {}
 
     def on_port_assigned(self):
         """Callback to reset internal state when a value was assigned to a

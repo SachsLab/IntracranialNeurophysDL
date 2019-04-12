@@ -114,7 +114,6 @@ if __name__ == "__main__":
     from neuropype.nodes import *
     import logging
     from custom import VaryingLDA
-    import matplotlib.pyplot as plt
 
     logging.basicConfig(level=logging.DEBUG)
 
@@ -124,9 +123,11 @@ if __name__ == "__main__":
     ERP_SEGMENT = [-0.2, 0.4]
     ERP_BASELINE = [-0.2, 0.05]
     KEEP_F_BANDS = [[0, 57], [63, 117], [123, 177], [183, 201]]
+    WIN_DUR = 0.05
+    NTRIALS = 300
 
     # Import the data from the mat file.
-    pkt = import_to_npype('ca')
+    pkt = import_to_npype('fp')
     pkt = Rereferencing()(data=pkt)  # CAR
     pkt = IIRFilter(frequencies=[1], mode='highpass', offline_filtfilt=True)(data=pkt)
 
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     pkt1 = IIRFilter(order=8, frequencies=[50, 300], mode='bandpass', offline_filtfilt=True)(data=pkt1)
 
     # Get non-overlapping 0.05 s windows.
-    pkt1 = ShiftedWindows(win_len=0.05, offset_len=0.05, unit='seconds')(data=pkt1)
+    pkt1 = ShiftedWindows(win_len=WIN_DUR, offset_len=WIN_DUR, unit='seconds')(data=pkt1)
 
     # Calculate variance within each window.
     pkt1 = Variance(axis='time')(data=pkt1)
@@ -160,28 +161,34 @@ if __name__ == "__main__":
 
     # Segment data around stimulus onset.
     pkt1 = Segmentation(time_bounds=TVLDA_SEGMENT)(data=pkt1)
+    pkt1 = SelectInstances(selection=[{'name': 'TrialIndex', 'operator': 'less_equal', 'value': NTRIALS}])(data=pkt1)
 
     # Classify data using time-varying LDA.
-    tvlda_res = VaryingLDA(independent_axis='time', cond_field='Marker',
-                           n_components=5)(data=pkt1, return_outputs='all')
-    MeasureLoss(cond_field='Marker')(data=tvlda_res['data'])
+    tvlda_node = VaryingLDA(independent_axis='time', cond_field='Marker', n_components=2, shrinkage=True)
+    # First cross-validation.
+    cv_tvlda = Crossvalidation(method=tvlda_node, cond_field='Marker', folds=10)(data=pkt1, return_outputs='all')
+    # TODO: We need a good way to use Crossvalidation output.
+    logging.info("TVLDA Loss = {0:.3f} +/- {1:.3f}".format(cv_tvlda['loss'], cv_tvlda['loss_std']))
+    # Then do the full model so we can visualize the components.
+    tvlda_res = tvlda_node(data=pkt1, return_outputs='all')
     tvlda_report = TensorDecompositionPlot(ident='tvldamodel', iv_field='Marker')(data=tvlda_res['model'],
                                                                                   return_outputs='all')['report']
 
-    lda_node = LinearDiscriminantAnalysis(cond_field='Marker')
-    cv_lda = Crossvalidation(method=lda_node, cond_field='Marker')(data=pkt1, return_outputs='all')
-    lda_res = lda_node(data=pkt1, return_outputs='all')
-    MeasureLoss(cond_field='Marker')(data=lda_res['data'])
+    # Classify data using LDA.
+    lda_node = LinearDiscriminantAnalysis(cond_field='Marker', shrinkage='auto')
+    cv_lda = Crossvalidation(method=lda_node, cond_field='Marker', folds=10)(data=pkt1, return_outputs='all')
+    logging.info("LDA Loss = {0:.3f} +/- {1:.3f}".format(cv_lda['loss'], cv_tvlda['loss_std']))
 
     # Visualize components using dPCA
     dpca_res = DemixingPCA(cond_field='Marker', labels='s',
                            join={'stim': ['s', 'st'], 'time': ['t']})(data=pkt1, return_outputs='all')
+    # TODO: This still goes to a PDF.
     temp = DPCAPlot(filename=str(DATA_ROOT / 'dpca.pdf'), margs_3d=['stim', 'stim', 'stim'])(data=dpca_res['model'])
 
     # Visualize components using tensor decomposition
     tca_node = TensorDecomposition(num_components=20)
     tca_res = tca_node(data=pkt1, return_outputs='all')
-    tca_report = TensorDecompositionPlot(iv_field='Marker', n_components=5)(data=tca_res['model'],
+    tca_report = TensorDecompositionPlot(iv_field='Marker', n_components=2)(data=tca_res['model'],
                                                                             return_outputs='all')['report']
 
     file_info = FileInfoExtraction()(data=pkt1, return_outputs='all')['report']

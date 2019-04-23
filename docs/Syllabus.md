@@ -149,6 +149,7 @@ and test them out on some neurophys data.
 * [LFADS ipynb](https://github.com/google-research/computation-thru-dynamics/blob/master/notebooks/LFADS%20Tutorial.ipynb)
 * Transformer
     * [link 1](https://staff.fnwi.uva.nl/s.abnar/?p=108)
+    * [Tensorflow tutorial](https://www.tensorflow.org/alpha/tutorials/text/transformer)
     * I've seen some better transformer examples. I need to search harder here.
 
 

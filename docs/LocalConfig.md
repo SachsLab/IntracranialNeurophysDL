@@ -11,7 +11,6 @@ install nvidia-docker and run everything in a customized docker container.
 
 1. Install nvidia driver version 410 following [these instructions](https://askubuntu.com/a/1077063).
 
-    
 1. Install `nvidia-docker` version 2.0
 
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
@@ -89,32 +88,58 @@ install nvidia-docker and run everything in a customized docker container.
 
 These instructions are provided and tested for Windows 10 but should work with previous versions, assuming users download
 the proper software versions. Unlike Linux, Windows can't forward GPU drivers to a docker container so
-all packages will be installed on the local machine. Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges. 
+all packages will be installed on the local machine.
 
-1. Create a base Deep Learning directory that will contain all the workshop material (e.g. <strong> D:\DL\ </strong> )
+1. Identify the version of tensorflow you will be using and its requirements.
+    * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
+    (Even though the table is for linux, the version dependencies are true in Windows too)
+    * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu-1.13.1 with python 3.6 and CUDA 10.0
 
-1. Install nvidia CUDA toolkit version 9.0 for your windows version from [nvidia](https://developer.nvidia.com/cuda-90-download-archive)
-    * TODO: Check if this is necessary. It's possible that conda handles all the details for us. 
-    
+1. Install a version of nVidia drivers with version number >= to the minimum required.  
+    * Go to [this table](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) and
+determine the minimum nVidia graphics driver version required compatible with the version of CUDA identified above.
+    nVidia drivers can be installed several different ways. If you already have geForce experience on your computer then
+    use that. Otherwise go to nvidia.com and download drivers from there.
+
 1. Download and install Git for Windows from [Git](https://gitforwindows.org/)
 
 1. Download and install the latest Anaconda version from [Anaconda](https://www.anaconda.com/download/#download)
-
-    * Launch the `Anaconda Prompt`. If Anaconda was not installed for a single user (i.e. outside of C:\Users\USER) you must run it using admin privileges by right clicking on the executable and selecting `More / Run as administrator`. 
-    * Navigate to the Deep Learning directory, for example:
-        * `D:`
-        * `cd DL`
-    * Run the following: 
+    * You can also get by with [miniconda](https://docs.conda.io/en/latest/miniconda.html) if you don't require the Anaconda GUI.
+    * Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges.
+    
+1. Use an Anaconda Prompt to create a new Python environment.
+    * Launch the `Anaconda Prompt`.
+    * Update conda: 
+        * If Anaconda was not installed for a single user (i.e. outside of C:\Users\USER) then this update can only be
+         run from a prompt with admin privileges, run by right clicking on the executable and selecting
+         `More / Run as administrator`.
         * `conda update -y -n base -c defaults conda`
         * `conda config --add channels conda-forge`
-    * Create a new conda environment containing all the required packages and python version 3.6
-        * `conda create -y -n indl python=3.6 pip cudatoolkit=9.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
+    * Create a new conda environment containing all the required packages and python
+        * In the below command, replace the python and cudatoolkit versions with the versions identified above
+        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
+        * This takes a while to solve version dependencies, download, and install all these packages.
     * Activate the new environment
         * `conda activate indl`
     * Add additional packages
         * `pip install sklearn-pandas pandas-summary isoweek`
-    * If the installation differs from Windows, Anaconda, Python 3.6 or CUDA 9.0, go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line. If not, use: 
-        * `conda install pytorch torchvision -c pytorch`
+    * Test the environment
+        * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
+        * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
+    * Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials.
+        * Go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line.
+        Be sure to select `conda` and the appropriate cudatoolkit version used above. 
+        * As of this writing: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`
+        * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
+        * The end of the output should read something like `device='cuda:0'`
+
+1. Create a base Deep Learning directory that will contain all the workshop material (e.g. <strong> D:\DL\ </strong> )
+        
+1. Download some tutorial material
+    * Navigate to the Deep Learning directory, for example:
+        * `D:`
+        * `cd DL`
     * Fast.ai course material. Replace <strong>D:\DL\ </strong> by your Deep Learning directory. 
         * `git clone --depth=1 https://github.com/fastai/fastai D:\DL\fastai`
         * `pip install D:\DL\fastai`

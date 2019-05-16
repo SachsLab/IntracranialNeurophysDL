@@ -1,11 +1,12 @@
+The Sachs Lab has prepared a 2-day workshop on practical deep learning (DL) applied to intracranial neurophysiology.
+This repository contains documentation, code, and tutorial materials for the workshop.
+
 # Purpose
 
-The SachsLab is preparing a short (~2-day) workshop on practical deep learning (DL) applied to intracranial
-neurophysiology. The goal of the workshop is to help attendees gain familiarity with technologies commonly used in DL
-(e.g., keras/tensorflow on GPU, jupyter notebooks on the cloud),
-to understand DL programming paradigms (e.g., batch loading data),
-and to become proficient in building, training, and evaluating deep neural networks
-as applied to extracellular neurophysiology data. 
+Attendees will gain familiarity with technologies commonly used in DL (e.g., keras/tensorflow on GPU,
+jupyter notebooks on the cloud), to understand DL programming paradigms (e.g., batch loading data),
+and to become proficient in building, training, and evaluating deep neural networks as applied to extracellular
+neurophysiology data. 
 
 Attendees will learn how to load and process electrophysiology datasets (ECoG, single-channel
 deep brain microelectrode recordings, and multichannel (~192) intracortical microelectrode array datasets). After an
@@ -13,30 +14,22 @@ introduction to DL, attendees will learn how to apply several DL algorithms and 
 and finally they will explore different ways of using deep learning to advance neuroscientific endeavours. Some of the
 algorithms we aim to cover include convolutional neural nets (CNN) and several flavours of recurrent neural nets (RNN).
 
-Attendees are expected to have a basic understanding of machine learning concepts, have basic familiarity with Python syntax,
-and have an interest in applying deep learning to extracellular neurophysiology data.
+Attendees are expected to have a basic understanding of machine learning concepts, have basic familiarity with Python
+syntax, and have an interest in applying deep learning to extracellular neurophysiology data.
 For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own
 laptop and have configured their deep learning environment (instructions will be provided in the weeks before the workshop).
 
 ### Libraries
 
-This repository contains resources for the SachsLab workshop on deep learning for the analysis of intracranial
-extracellular electrophysiology. The workshop is opinionated in its selection of development environment, deep learning
-framework, and example datasets. There are many tools to choose from, but we choose to use Python, with the TensorFlow
-framework, and we require a GPU (tensorflow-gpu).
-
-We use CUDA 9.0 because its nVidia driver requirements are more easily achieved than the requirements of
-CUDA 9.2 or 10.0. We use Jupyter notebooks running on Python 3.6. The workshop uses 
-[TensorFlow](https://www.tensorflow.org/) gpu-enabled variant: `tensorflow-gpu` as a backend and the high-level API
-[Keras](https://www.tensorflow.org/guide/keras). The setup instructions will help you configure your environment.
-The instructions also include steps to add [PyTorch](https://pytorch.org/) which is another deep learning Python
-library, and a high-level API for PyTorch called [fast.ai](https://www.fast.ai/).
+The workshop is opinionated in its selection of development environment, deep learning framework, and example datasets.
+There are many tools to choose from, but we choose to use Python, with the TensorFlow framework (mostly) and Keras API,
+and we require a GPU (tensorflow-gpu).
 
 #### Configuration
 
 The lessons assume you have access to a machine with a CUDA-enabled nVidia GPU. Click below to get
 instructions for either a *local* configuration (i.e., your own desktop or laptop), or for a *remote* configuration
-(i.e., from an online service like Google Colab or Amazon Web Services).
+(i.e., from an online service like Kaggle, Google Colab or Amazon Web Services).
 
 * [Local configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
 * [Remote configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/RemoteConfig.md)

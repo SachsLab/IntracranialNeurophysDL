@@ -1,5 +1,8 @@
 ### Remote Configuration
 
+This document is a bit out of date.
+[Alternative cloud platforms](https://www.dataschool.io/cloud-services-for-jupyter-notebook/)
+
 Here we describe how to use Amazon Web Services (AWS) to run the course material in the cloud.
 We have created a [customized image](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html)
 based on the Deep Learning Amazon Machine Image (DLAMI) with Conda described

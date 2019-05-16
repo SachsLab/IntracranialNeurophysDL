@@ -6,6 +6,9 @@ The second half of the first day will use real intracranial neurophysiological d
 Day 2 will begin with an introduction to recurrent neural networks as applied to intracortical spiking data, and then through a couple advanced architectures that make use of RNNs including LFADS and Transformers.
 The second half of Day 2 is devoted to brain-inspired DL and DL-inspired neuroscience.
 
+Note: The Syllabus is a work-in-progress. Eventually much of the detail in the Syllabus will move into the
+individual notebooks and/or accompanying slides.
+
 ## Table of Contents
 
 TODO: Fill in later
@@ -17,34 +20,33 @@ TODO: Fill in later
 60 minutes + 30 minute break
 
 The first session will be devoted to introducing deep learning tools, and making sure participants can get the
-most out of their tools. It is expected that participants will have already received and followed provided
-instructions to setup their local environment prior to attending the workshop. Given that, we will go
-quickly through this section. At the break, we will provide assistance to attendees who
-had trouble setting up their environment.
+most out of their tools. It is expected that participants will have already followed provided
+instructions to setup their local environment prior to attending the workshop.
+(Choose LocalConfig.md or RemoteConfig.md document [here](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs))
+Given that, we will go quickly through this section. At the break, we will provide assistance to attendees who had
+difficulty setting up their environment.
 
-* Our chosen deep learning library -- tensorflow (GPU-enabled variant) -- has requirements:
-    * Match your version of tensorflow-gpu's dependencies and your hardware
-    [here](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) 
+Outline:
+
 * Python environments
     * Understanding the PATH
     * Environment and package managers: conda, pip
         * [more info](https://medium.com/@rgalbo/simple-python-environments-for-data-science-globe-with-meridians-2b952a3f497f)
-* Setting up a local environment
-    * Mac/Windows/Linux: Using miniconda
-* Setting up a remote environment 
-    * Local example in Linux only with nvidia-docker
-        * Local needs correct nvidia drivers
-    * Free cloud options [described here](https://www.dataschool.io/cloud-services-for-jupyter-notebook/)
-    (but ignore jupyter context for now)
 * Using an IDE
-    * PyCharm Professional (v>=2019)), free for academics
+    * PyCharm Professional (v>=2019.1)), free for academics
         * Other options not discussed: Spyder, VS Code
     * Configuring its interpreter / environment
     * How to debug
 * Using Jupyter notebooks
     * Run the server (remote or local) and connect with your browser
     * Tips for working with jupyter notebooks
+        * Tab-completion
+        * shift+tab completion
+        * ?
+        * ??
+        * Press "h" for keyboard shortcuts
     * Attach to the server process with your IDE
+* Data exploration in Jupyter notebooks
 
 ### Part 2: My first neural net
 
@@ -53,7 +55,30 @@ had trouble setting up their environment.
 The second session will introduce neural nets and their basic components. 
 
 * Introduce our first example data set - an ECoG dataset from [Kai Miller's repository](https://exhibits.stanford.edu/data/catalog/zk881ps0522).
+    * Import raw data using python-neo
+    * Arrays: matrices and tensors. For each of our example datasets:
+        * Explain the experiment if applicable. Describe the recording setup (electrodes, amps, other measures). 
+        * Print data shape
+        * Print some of the contents
+            * Look at scale, precision. Data should be standardized.
+            * FP16 vs FP32 on GPU.
+        * Print additional structure (labels, kinematics, etc.)
+        * Visualize individual trials, colour coded by condition
+        * Visualize condition-average (much information lost)
+        * Visualize covariance structure.
+        * Tensor decomposition
 * Feature engineering typically required for shallow ML: expert signal processing and feature extraction
+    * Become experts in neurophysiology of PD --> beta burst length and PAC
+        * BG-thalamocortical network has oscillatory activity --> time-frequency transform to spectrogram
+        * Beta band-pass filter --> Hilbert transform --> Instantaneous amplitude/phase
+    * Become experts in intracortical array neurophysiology --> "Neural modes"
+        * High-pass filter
+        * Threshold
+        * Spike-sorting
+        * Demultiplexing?
+        * Binned spike counts
+        * Counts to rates
+        * Dimensionality reduction (tensor decomp; factor analysis)
 * Separate trials (where each trial has a feature vector and label) into training, validation, and test sets.
 * Get common-sense baseline
     * What's the best we can do without data? Depends on number of classes and balance.
@@ -74,10 +99,12 @@ The second session will introduce neural nets and their basic components.
     * Further learning rate adaptation / schedules
 * How is this any better than LDA? Naively, [it's not](https://www.jstor.org/stable/2584434)
 * A few simple modifications beyond LDA
-    * More layers
-        * Keep adding until we overfit
     * Different activation functions
         * tanh, ReLU
+        * [Note on non-linearity](http://neuralnetworksanddeeplearning.com/chap4.html)
+    * More layers
+        * Keep adding until we overfit
+    * Feature-engineering not required.
     * Regularization
         * dropout
     * Data augmentation
@@ -98,6 +125,7 @@ will classify our data using one such generic architecture: a convolutional neur
 will also see how parts of this architecture can be shared across datasets.
 
 * Convolution operation
+    * [Note on convolution kernels](http://setosa.io/ev/image-kernels)
     * Translation invariance
 * Convolution as a layer
 * Deep network with convolutional layers

@@ -4,17 +4,17 @@ This section of the repository contains code and support files to download ECoG 
 repository [(here)](https://exhibits.stanford.edu/data/catalog/zk881ps0522),
 to load it into Python, and to save it in a common intermediate format.
 
-The list of studies to be processed is in studies.csv,
-The list of datasets for each study is in datasets.csv.
-The list of participants, including their electrodes, is in participants.csv.
-TODO: participants.csv is incomplete.
+* The list of studies to be processed is in studies.csv.
+* The list of datasets for each study is in datasets.csv.
+* The list of participants, including their electrodes, is in participants.csv.
+    * TODO: participants.csv is incomplete.
 
 # Description
 
 # Download and Convert
 
-The scripts expect to be located in `./data/kjm_ecog/` relative to your working
-directory.
+The scripts expect to be located in `./data/kjm_ecog/` relative to your working directory.
+i.e., your working directory should be the repository root.
 
 Start with `python data/kjm_ecog/01_download.py`.
 This will download each study's zip file into the ./data/kjm_ecog/download folder.

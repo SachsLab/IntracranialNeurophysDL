@@ -116,9 +116,9 @@ determine the minimum nVidia graphics driver version required compatible with th
          `More / Run as administrator`.
         * `conda update -y -n base -c defaults conda`
         * `conda config --add channels conda-forge`
-    * Create a new conda environment containing all the required packages and python
+    * Create a new conda environment containing the Python interpreter and all the required packages.
         * In the below command, replace the python and cudatoolkit versions with the versions identified above
-        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
+        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets tqdm watchdog qtpy`
         * This takes a while to solve version dependencies, download, and install all these packages.
     * Activate the new environment
         * `conda activate indl`

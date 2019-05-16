@@ -4,6 +4,30 @@ import requests
 import tqdm
 
 
+AREA_LABELS = [
+    'Temporal pole',
+    'Parahippocampal gyrus',            # parahippocampal part of the medial occipito-temporal gyrus
+    'Inferior temporal gyrus',
+    'Middle temporal gyrus',
+    'fusiform gyrus',                   # Lateral occipito-temporal gyrus,
+    'Lingual gyrus',                    # lingual part of  the medial occipito-temporal gyrus
+    'Inferior occipital gyrus',
+    'Cuneus',
+    'Post-ventral cingulate gyrus',     # Posterior-ventral part of the
+    'Middle Occipital gyrus',
+    'occipital pole',
+    'precuneus',
+    'Superior occipital gyrus',
+    'Post-dorsal cingulate gyrus',      # Posterior-dorsal part of the cingulate gyrus
+    ' ',
+    ' ',
+    ' ',
+    ' ',
+    ' ',
+    'Non-included area',
+]
+
+
 def get_md5(fname):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:

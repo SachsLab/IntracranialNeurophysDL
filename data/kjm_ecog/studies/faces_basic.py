@@ -177,7 +177,7 @@ if __name__ == "__main__":
     # Classify data using LDA.
     lda_node = nn.LinearDiscriminantAnalysis(cond_field='Marker', shrinkage='auto')
     cv_lda = nn.Crossvalidation(method=lda_node, cond_field='Marker', folds=10)(data=pkt1, return_outputs='all')
-    logging.info("LDA Loss = {0:.3f} +/- {1:.3f}".format(cv_lda['loss'], cv_tvlda['loss_std']))
+    logging.info("LDA Loss = {0:.3f} +/- {1:.3f}".format(cv_lda['loss'], cv_lda['loss_std']))
 
     # Visualize components using dPCA
     dpca_res = nn.DemixingPCA(cond_field='Marker', labels='s',

@@ -118,12 +118,12 @@ determine the minimum nVidia graphics driver version required compatible with th
         * `conda config --add channels conda-forge`
     * Create a new conda environment containing the Python interpreter and all the required packages.
         * In the below command, replace the python and cudatoolkit versions with the versions identified above
-        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets tqdm watchdog qtpy`
+        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets tqdm watchdog qtpy cython`
         * This takes a while to solve version dependencies, download, and install all these packages.
     * Activate the new environment
         * `conda activate indl`
     * Add additional packages
-        * `pip install sklearn-pandas pandas-summary isoweek`
+        * `pip install sklearn-pandas pandas-summary isoweek kaggle`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -133,6 +133,9 @@ determine the minimum nVidia graphics driver version required compatible with th
         * As of this writing: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`
         * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
         * The end of the output should read something like `device='cuda:0'`
+    * Neuropype users will need some additional packages
+        * `conda install plotly`
+        * `pip install git+https://github.com/ahwillia/tensortools`
 
 1. Create a base Deep Learning directory that will contain all the workshop material (e.g. <strong> D:\DL\ </strong> )
         

@@ -46,7 +46,7 @@ class ImportKJM(Node):
 
         dat_contents = scipy.io.loadmat(self.filename, squeeze_me=True)
 
-        stim = dat_contents['stim'].reshape(-1)  # samples x 1; uint8
+        stim = dat_contents['stim']  # samples x _; uint8
         data = dat_contents['data']  # samples x channels; float
         srate = dat_contents['srate']
 
@@ -68,9 +68,10 @@ class ImportKJM(Node):
 
         # Get the channel labels and locations.
         fn_path = Path(self.filename)
-        locs_fn = DATA_ROOT / 'locs' / (self.participant_id + '_xslocs.mat')
-        locs_contents = scipy.io.loadmat(locs_fn)  # 'elcode' and 'locs'
-        elec_names = np.array([AREA_LABELS[el_code - 1] for el_code in locs_contents['elcode'].reshape(-1)],
+        participant_id = str(fn_path.stem).split('_')[0]
+        locs_path = fn_path.parents[2] / 'locs' / (participant_id + '_xslocs.mat')
+        locs_contents = scipy.io.loadmat(locs_path, squeeze_me=True)  # 'elcode' and 'locs'
+        elec_names = np.array([AREA_LABELS[el_code - 1] for el_code in locs_contents['elcode']],
                               dtype=object)
         # Append a .N to each electrode name, where N is the count of electrodes with that name.
         # The below method is a little silly, but more straightforward approaches did not work

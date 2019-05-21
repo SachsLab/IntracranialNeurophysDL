@@ -19,33 +19,19 @@ TODO: Fill in later
 
 60 minutes + 30 minute break
 
-The first session will be devoted to introducing deep learning tools, and making sure participants can get the
-most out of their tools. It is expected that participants will have already followed provided
-instructions to setup their local environment prior to attending the workshop.
-(Choose LocalConfig.md or RemoteConfig.md document [here](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs))
+The first session will be devoted to introducing deep learning tools, and
+making sure attendees can get the most out of their tools. It is expected
+that participants will have already followed provided instructions to
+setup their laptop prior to attending the workshop by following the
+[BeforeTheWorkshop document](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md).
 Given that, we will go quickly through this section. At the break, we will provide assistance to attendees who had
 difficulty setting up their environment.
 
 Outline:
 
 * Python environments
-    * Understanding the PATH
-    * Environment and package managers: conda, pip
-        * [more info](https://medium.com/@rgalbo/simple-python-environments-for-data-science-globe-with-meridians-2b952a3f497f)
 * Using an IDE
-    * PyCharm Professional (v>=2019.1)), free for academics
-        * Other options not discussed: Spyder, VS Code
-    * Configuring its interpreter / environment
-    * How to debug
 * Using Jupyter notebooks
-    * Run the server (remote or local) and connect with your browser
-    * Tips for working with jupyter notebooks
-        * Tab-completion
-        * shift+tab completion
-        * ?
-        * ??
-        * Press "h" for keyboard shortcuts
-    * Attach to the server process with your IDE
 * Data exploration in Jupyter notebooks
 
 ### Part 2: My first neural net
@@ -84,7 +70,6 @@ The second session will introduce neural nets and their basic components.
     * What's the best we can do without data? Depends on number of classes and balance.
     * Try with shallow ML: LDA
         * Visualize results including weight projections on electrode grid.
-    * Try with shallow ML: Varying LDA
 * Introduce Keras
     * Sequential vs functional
     * tf eager
@@ -108,6 +93,7 @@ The second session will introduce neural nets and their basic components.
     * Regularization
         * dropout
     * Data augmentation
+        * Will's paper about phase delay during auditory processing.
 
 ## Day 1 PM
 
@@ -147,6 +133,8 @@ Dr. Guillaume Doucet will present this part.
     * CNN architecture with middle layer with N features, outer layers to reproduce waveforms.
     * Use middle-layer activations for spike sorting
     * Use on full data as spike detection + sorting
+    
+Resource: [1](https://blog.keras.io/building-autoencoders-in-keras.html)
 
 ## Day 2 AM
 

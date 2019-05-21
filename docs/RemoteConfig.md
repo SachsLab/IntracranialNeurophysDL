@@ -1,11 +1,14 @@
 ### Remote Configuration
 
-This document is a bit out of date.
-[Alternative cloud platforms](https://www.dataschool.io/cloud-services-for-jupyter-notebook/)
+The information in this document is deprecated.
+Previously the plan was to run everything on AWS,
+but now we use a combination of Kaggle and Google Colab which is free and easier to setup.
 
-Navigate to https://colab.research.google.com/github/ .
-Click on "Include private repos" to authorize google colab.
+See a comparison of the different free cloud deep learning platforms [here](https://www.dataschool.io/cloud-services-for-jupyter-notebook/)
 
+I will keep the text below for reference.
+
+### Deprecated -- Ignore me
 
 Here we describe how to use Amazon Web Services (AWS) to run the course material in the cloud.
 We have created a [customized image](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html)

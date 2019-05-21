@@ -24,20 +24,13 @@ laptop and have configured their deep learning environment (instructions will be
 # Tools in scope
 
 The workshop is opinionated in its selection of development environment, deep learning framework, and example datasets.
-There are many tools to choose from, but we choose to use the TensorFlow framework (mostly) and Keras API,
+There are many tools to choose from, but we choose to use the TensorFlow framework and Keras API,
 and we require a GPU (tensorflow-gpu). The workshop environment requires many more packages but mostly as dependencies;
 the workshop material focuses on the use of TensorFlow.
 
 # Getting started
 
-## Configuring your environment
-
-The lessons assume you have access to a machine with a CUDA-enabled nVidia GPU. Click below to get
-instructions for either a *local* configuration (i.e., your own desktop or laptop), or for a *remote* configuration
-(i.e., from an online service like Kaggle, Google Colab or Amazon Web Services).
-
-* [Local configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
-* [Remote configuration](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/RemoteConfig.md)
+Follow the instructions in the [BeforeTheWorkshop](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md) document.
 
 When you have finished configuring your environment, you should be able to interact with the workshop notebooks.
 Additionally, your environment should also have other notebooks for your reference, including

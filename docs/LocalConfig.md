@@ -1,5 +1,11 @@
 ## Local Configuration
 
+Before following the instructions in this document, you should follow the instructions in
+the [BeforeTheWorkshop](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md)
+document.
+
+Follow the instructions for your operating system.
+
 * [Linux Ubuntu](#linux-ubuntu)
 * [Windows 10](#windows-10)
 * [MacOS](#macos)
@@ -101,29 +107,12 @@ all packages will be installed on the local machine.
 determine the minimum nVidia graphics driver version required compatible with the version of CUDA identified above.
     nVidia drivers can be installed several different ways. If you already have geForce experience on your computer then
     use that. Otherwise go to nvidia.com and download drivers from there.
-
-1. Download and install Git for Windows from [Git](https://gitforwindows.org/)
-
-1. Download and install the latest Anaconda version from [Anaconda](https://www.anaconda.com/download/#download)
-    * You can also get by with [miniconda](https://docs.conda.io/en/latest/miniconda.html) if you don't require the Anaconda GUI.
-    * Note that installing outside the default directories (e.g. C:\Users\USER) might require admin privileges.
     
-1. Use an Anaconda Prompt to create a new Python environment.
-    * Launch the `Anaconda Prompt`.
-    * Update conda: 
-        * If Anaconda was not installed for a single user (i.e. outside of C:\Users\USER) then this update can only be
-         run from a prompt with admin privileges, run by right clicking on the executable and selecting
-         `More / Run as administrator`.
-        * `conda update -y -n base -c defaults conda`
-        * `conda config --add channels conda-forge`
-    * Create a new conda environment containing the Python interpreter and all the required packages.
-        * In the below command, replace the python and cudatoolkit versions with the versions identified above
-        * `conda create -y -n indl python=3.6 pip cudatoolkit=10.0 tensorflow-gpu jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets tqdm watchdog qtpy cython`
-        * This takes a while to solve version dependencies, download, and install all these packages.
-    * Activate the new environment
-        * `conda activate indl`
+1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
+    * `conda install pip cudatoolkit=10.0 tensorflow-gpu`
+        * Replace the 10.0 with the proper cuda version as determined above.
     * Add additional packages
-        * `pip install sklearn-pandas pandas-summary isoweek kaggle`
+        * `pip install tensorboardcolab`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -133,16 +122,12 @@ determine the minimum nVidia graphics driver version required compatible with th
         * As of this writing: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`
         * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
         * The end of the output should read something like `device='cuda:0'`
-    * Neuropype users will need some additional packages
-        * `conda install plotly`
-        * `pip install git+https://github.com/ahwillia/tensortools`
 
-1. Create a base Deep Learning directory that will contain all the workshop material (e.g. <strong> D:\DL\ </strong> )
+1. Change to the directory from which you cloned the workshop material (e.g. <strong> D:\DL\ </strong> )
+    * `D:`
+    * `cd DL`
         
 1. Download some tutorial material
-    * Navigate to the Deep Learning directory, for example:
-        * `D:`
-        * `cd DL`
     * Fast.ai course material. Replace <strong>D:\DL\ </strong> by your Deep Learning directory. 
         * `git clone --depth=1 https://github.com/fastai/fastai D:\DL\fastai`
         * `pip install D:\DL\fastai`
@@ -152,18 +137,6 @@ determine the minimum nVidia graphics driver version required compatible with th
         * `git clone https://github.com/fastai/course-v3.git D:\DL\fastai_v3`
     * Tensorflow material
         * `git clone --depth=1 https://github.com/tensorflow/docs.git D:\DL\tensorflow`
-        
-1. Launch Jupyter and create a new Notebook
-
-    * `jupyter notebook`
-    * Select: New / Python 3
-        
-1. Test installation
-    * Running this line should return True: 
-        * `import tensorflow as tf; tf.test.is_gpu_available()`
-    * Running this line should return a 2 x 3 tensor: 
-        * `import torch; print(torch.rand(2,3).cuda())`
-
 
 ### MacOS
 

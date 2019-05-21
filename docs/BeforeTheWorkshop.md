@@ -15,6 +15,7 @@
 * [Get a PyCharm student account](https://www.jetbrains.com/shop/eform/students)
     * When that comes through, download and install PyCharm professional v >= 2019.1
 * [Sign up for Neuropype academic edition.](https://www.neuropype.io/academic-edition)
+    * After you receive notification for the download, download and install NeuroPype.
 
 ## Preparing a Python environment
 
@@ -39,7 +40,7 @@ for Part1).
     * Windows: `conda activate indl`
     * Mac/Linux: `source activate indl`
 * Install Python packages and their dependencies through conda
-    * `conda install pip numpy scipy scikit-learn pandas jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly`
+    * `conda install pip numpy scipy scikit-learn pandas jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py`
 * Install a few additional packages through pip
     * `pip install sklearn-pandas pandas-summary isoweek kaggle`
 * Clone this repository.
@@ -56,5 +57,5 @@ If your laptop has an nVidia GPU, or if you will return to a workstation with an
 then please continue by following the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
 document. Otherwise you can stop here.
 
-If  you decide to do a local config for deep learning, try running the jupyter-notebook
+After you've completed the local config for deep learning, try running the jupyter-notebook
 server and running the notebooks/01_00_tensorflow_test.ipynb notebook.

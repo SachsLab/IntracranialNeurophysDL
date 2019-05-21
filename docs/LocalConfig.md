@@ -1,8 +1,7 @@
 ## Local Configuration
 
 Before following the instructions in this document, you should follow the instructions in
-the [BeforeTheWorkshop](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md)
-document.
+the [BeforeTheWorkshop document](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md).
 
 Follow the instructions for your operating system.
 
@@ -109,10 +108,8 @@ determine the minimum nVidia graphics driver version required compatible with th
     use that. Otherwise go to nvidia.com and download drivers from there.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `conda install pip cudatoolkit=10.0 tensorflow-gpu`
+    * `conda install cudatoolkit=10.0 tensorflow-gpu tensorboard`
         * Replace the 10.0 with the proper cuda version as determined above.
-    * Add additional packages
-        * `pip install tensorboardcolab`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.

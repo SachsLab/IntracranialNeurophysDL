@@ -41,42 +41,15 @@ Outline:
 The second session will introduce neural nets and their basic components. 
 
 * Introduce our first example data set - an ECoG dataset from [Kai Miller's repository](https://exhibits.stanford.edu/data/catalog/zk881ps0522).
-    * Import raw data using python-neo
-    * Arrays: matrices and tensors. For each of our example datasets:
-        * Explain the experiment if applicable. Describe the recording setup (electrodes, amps, other measures). 
-        * Print data shape
-        * Print some of the contents
-            * Look at scale, precision. Data should be standardized.
-            * FP16 vs FP32 on GPU.
-        * Print additional structure (labels, kinematics, etc.)
-        * Visualize individual trials, colour coded by condition
-        * Visualize condition-average (much information lost)
-        * Visualize covariance structure.
-        * Tensor decomposition
-* Feature engineering typically required for shallow ML: expert signal processing and feature extraction
-    * Become experts in neurophysiology of PD --> beta burst length and PAC
-        * BG-thalamocortical network has oscillatory activity --> time-frequency transform to spectrogram
-        * Beta band-pass filter --> Hilbert transform --> Instantaneous amplitude/phase
-    * Become experts in intracortical array neurophysiology --> "Neural modes"
-        * High-pass filter
-        * Threshold
-        * Spike-sorting
-        * Demultiplexing?
-        * Binned spike counts
-        * Counts to rates
-        * Dimensionality reduction (tensor decomp; factor analysis)
-* Separate trials (where each trial has a feature vector and label) into training, validation, and test sets.
 * Get common-sense baseline
     * What's the best we can do without data? Depends on number of classes and balance.
     * Try with shallow ML: LDA
-        * Visualize results including weight projections on electrode grid.
 * Introduce Keras
     * Sequential vs functional
-    * tf eager
 * Introduce tf.data
-* Try a not-so-deep neural net    
+* Try a not-so-deep neural net
     * Build a simple 1-layer Dense network with linear activations
-    * Visualize with TensorBoard
+    * Train and Visualize with TensorBoard
     * How to use training loss vs validation loss.
 * What is happening?
     * Gradient descent
@@ -85,7 +58,7 @@ The second session will introduce neural nets and their basic components.
 * How is this any better than LDA? Naively, [it's not](https://www.jstor.org/stable/2584434)
 * A few simple modifications beyond LDA
     * Different activation functions
-        * tanh, ReLU
+        * tanh, sigmoid, ReLU
         * [Note on non-linearity](http://neuralnetworksanddeeplearning.com/chap4.html)
     * More layers
         * Keep adding until we overfit

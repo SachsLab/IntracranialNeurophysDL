@@ -43,9 +43,8 @@ The second session will introduce neural nets and their basic components.
 * Introduce our first example data set - an ECoG dataset from [Kai Miller's repository](https://exhibits.stanford.edu/data/catalog/zk881ps0522).
 * Get common-sense baseline
     * What's the best we can do without data? Depends on number of classes and balance.
-    * Try with shallow ML: LDA
+    * Try with shallow ML: LDA With 02_01_basic_lda.ipynb
 * Introduce Keras
-    * Sequential vs functional
 * Introduce tf.data
 * Try a not-so-deep neural net
     * Build a simple 1-layer Dense network with linear activations

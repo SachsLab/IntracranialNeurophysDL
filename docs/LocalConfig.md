@@ -99,7 +99,7 @@ all packages will be installed on the local machine.
     * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
     (Even though the table is for linux, the version dependencies are true in Windows too)
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu-1.13.1 with python 3.6 and CUDA 10.0
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.13.1 with python 3.6 and CUDA 10.0
 
 1. Install a version of nVidia drivers with version number >= to the minimum required.  
     * Go to [this table](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) and
@@ -107,9 +107,26 @@ determine the minimum nVidia graphics driver version required compatible with th
     nVidia drivers can be installed several different ways. If you already have geForce experience on your computer then
     use that. Otherwise go to nvidia.com and download drivers from there.
     
+1. Next we install CUDA and add it to the PATH. There is a longer [install guide here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/)
+or you can follow the shorter steps below.
+    1. CUDA Toolkit
+        * Download and run the CUDA Toolkit <version> installer [from here](https://developer.nvidia.com/cuda-toolkit-archive)
+        * In the installer, choose Custom installation (Advanced), Uncheck everything,
+        then check only CUDA/Development and CUDA/Runtime/Libraries.
+    1. CUDNN
+        * Download the CUDNN package [from here](https://developer.nvidia.com/rdp/cudnn-download)
+            * Make sure the cuDNN version says "for CUDA <version>" where <version> matches the CUDA toolkit above.
+        * Extract the 'cuda' folder somewhere convenient. I put it in E:\SachsLab\Tools\Misc
+    1. Open your System Environment settings and add the following items to the top of the PATH
+        ([general directions](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)):
+        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin (might already be there)
+        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64
+        * <path to cuddnn bin> e.g. E:\SachsLab\Tools\Misc\cuda\bin
+    1. If you Anaconda Prompt is already open, close it and re-open it.
+    
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `conda install cudatoolkit=10.0 tensorflow-gpu tensorboard`
-        * Replace the 10.0 with the proper cuda version as determined above.
+    * `pip install tf-nightly-gpu`
+    * `pip install tensorflow-gpu==2.0.0-alpha0`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.

@@ -48,7 +48,7 @@ for Part1).
     * Windows: `conda activate indl`
     * Mac/Linux: `source activate indl`
 * Install Python packages and their dependencies through conda
-    * `conda install pip numpy scipy scikit-learn pandas jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py`
+    * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py`
 * Install a few additional packages through pip
     * `pip install sklearn-pandas pandas-summary isoweek kaggle`
 * Clone this repository.

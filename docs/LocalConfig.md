@@ -143,39 +143,39 @@ The MacOS environment set up here consists of the following limitations:
 * Recent Mac hardware (iMac or Macbook Pro) do not use NVIDIA GPUs, and thus CUDA cannot be used for tensorflow.
 Some operations may be much slower on a Mac because it uses the CPU only.
 
-To setup the environment, run the shell script:
-`$ ./.dots all`
-
-The above command runs all of the following scripts:
-* **`macos_prep.sh`**
-    1. Updates MacOS
-    2. Installs the Xcode Command Line Tools
-    3. Create the directory ${HOME}/Developer/indl.
-* **`brew.sh`**:
-    1. Install Homebrew if not already installed, and updates and upgrade any already-installed formulae
-    2. Install any required developer tool kits
-    
-* **`condata.sh`**:
-    1. Install Miniconda:
-        * `wget -p --convert-links -nH -nd -P${HOME}/Downloads https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh`
-        * `cd ~/Downloads`
-        * `chmod u+x Miniconda3-latest-MacOSX-x86_64.sh`
-        * `./Miniconda3-latest-MacOSX-x86_64.sh`
-    2. Setup Miniconda, `indl` environment:
-        * `conda update -y -n base -c defaults conda`
-        * `conda config --add channels conda-forge`
-        * `conda create -y -n indl python=3.6 pip tensorflow jupyterlab jupyter_contrib_nbextensions bottleneck matplotlib numexpr pandas packaging Pillow requests bcolz opencv seaborn python-graphviz scikit-learn ipywidgets`
-    3. Activate the `indl` environment:
-        * `conda activate indl`
-        * `pip install sklearn-pandas pandas-summary isoweek`
-        * `conda install pytorch torchvision -c pytorch`
-    4. Download datasets (Optional)
-        * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`
-    5. Download materials:
+Ensure you have completed all the <a href="https://github.com/SachsLab/IntracranialNeurophysDL/blob/master/docs/BeforeTheWorkshop.md">MacOS python setup instructions</a>. To setup the environment, execute terminal commands under each instruction wrapped in code:
+1. Check Xcode CLT install:
+    * `brew config`
+        * You should be able to see your CLT version, here's an example output: `macOS: 10.14.4-x86_64 \ CLT: 10.2.1.0.1.1554506761 \ Xcode: 10.2.1`
+    * `xcode-select --install`
+1. Activate `indl` conda environment
+    * `conda activate indl`
+1. Install TensorFlow:
+    * `pip install --upgrade pip`
+    * `pip install tensorflow`
+1. Verify installation:
+    * `python -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"`
+    * You should get something like this `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+        * This is normal, because TensorFlow is built without CPU extensions (such as SSE4.1, SSE4.2, AVX, AVX2, FMA, etc.)
+        * Until there is GPU support for MacOS, optimizing TensorFlow can be done via <a href="https://www.tensorflow.org/install/source">building from source</a>. Use at your own risk.
+1. We will be saving the below materials in the following working directory: `~/Developer/indl`
+    * `mkdir ${HOME}/Developer && mkdir ${HOME}/Developer/indl`
+1. Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials:
+    * `conda activate indl`
+    * `conda install pytorch torchvision -c pytorch`
+1. Download some tutorial material:
+    * Clone and install fastai:
         * `git clone --depth=1 https://github.com/fastai/fastai ${HOME}/Developer/indl/fastai`
         * `pip install ${HOME}/Developer/indl/fastai torchtext`
+    * The following command converts the link and saves the downloaded files in the indl directory (ignoring remote folders):
         * `wget -p --convert-links -nH -nd -P${HOME}/Developer/indl \`
-        * `http://files.fast.ai/data/dogscats.zip && unzip ${HOME}/Developer/indl/dogscats.zip -d ${HOME}/Developer/indl/data/`
+        * `http://files.fast.ai/data/dogscats.zip`
+    * Unzip the downloaded file:
+        * `unzip ${HOME}/Developer/indl/dogscats.zip -d ${HOME}/Developer/indl/data/`
+    * Clone fastai course repository:
         * `git clone https://github.com/fastai/course-v3.git ${HOME}/Developer/indl/fastai_v3`
+    * Clone TensorFlow docs:
         * `git clone --depth=1 https://github.com/tensorflow/docs.git ${HOME}/Developer/indl/tensorflow`
 
+1. Download datasets (DEPRECATED)
+    * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`

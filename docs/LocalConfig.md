@@ -125,7 +125,6 @@ or you can follow the shorter steps below.
     1. If you Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tf-nightly-gpu`
     * `pip install tensorflow-gpu==2.0.0-alpha0`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`

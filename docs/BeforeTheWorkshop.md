@@ -16,9 +16,9 @@
     * Download your Kaggle API key. [Instructions](https://github.com/Kaggle/kaggle-api#api-credentials)
     * If you have trouble creating the C:\Users\<username>\.kaggle folder, try doing it in a command prompt.
         * Open a command prompt
-        * > `%systemdrive%`
-        * > `cd %userprofile%`
-        * > `mkdir .kaggle`
+        * `%systemdrive%`
+        * `cd %userprofile%`
+        * `mkdir .kaggle`
 * [Get a PyCharm student account](https://www.jetbrains.com/shop/eform/students)
     * When that comes through, download and install PyCharm professional v >= 2019.1
 * [Sign up for Neuropype academic edition.](https://www.neuropype.io/academic-edition)

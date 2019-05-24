@@ -11,11 +11,12 @@
     * Navigate to https://colab.research.google.com/github/ .
     * Click on "Include private repos" to authorize google colab.
         * This might not be necessary once the repos go public.
-* Get a kaggle account.
-    * https://www.kaggle.com/
+* Configure your computer to download from kaggle
+    * Get a kaggle account: https://www.kaggle.com/
     * Download your Kaggle API key. [Instructions](https://github.com/Kaggle/kaggle-api#api-credentials)
-    * If you have trouble creating the C:\Users\<username>\.kaggle folder, try doing it in a command prompt.
-        * Open a command prompt
+    * Copy your kaggle.json file into your <home>/.kaggle folder.
+        * Windows users: If you have trouble creating the C:\Users\<username>\.kaggle folder,
+        try executing the following commands in a Command Prompt.
         * `%systemdrive%`
         * `cd %userprofile%`
         * `mkdir .kaggle`

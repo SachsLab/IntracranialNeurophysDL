@@ -51,9 +51,12 @@ for Part1).
     * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py`
 * Install a few additional packages through pip
     * `pip install sklearn-pandas pandas-summary isoweek kaggle`
-* Clone this repository.
+* Clone this repository and open it in PyCharm.
     * Open a terminal/anaconda prompt and cd to a directory with a lot of space. (e.g. <strong> D:\DL\ </strong> )
     * `git clone https://github.com/SachsLab/IntracranialNeurophysDL.git`
+    * Run PyCharm and Open the repository root directory.
+    * Configure the PyCharm IntracranialNeurophysDL project to use the indl environment.
+    ([Instructions here.](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/ConfigurePyCharmCondaEnvironment.pdf))
     
 ## Local Deep Learning
 

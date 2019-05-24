@@ -122,7 +122,7 @@ Resource: [1](https://blog.keras.io/building-autoencoders-in-keras.html)
         * Follow design here: [Tseng et al., 2019](https://www.ncbi.nlm.nih.gov/pubmed/30979355/)
         * Use data from joeyo or from Reach and Grasp
     * [RNN in ECoG](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6119703/)
-        * Use data from Kai Miller
+    * [LSTM in ECoG](https://www.biorxiv.org/content/10.1101/210732v2.abstract)
     * RNN for classification of MER trajectories in DBS
         * Use our trained model and one example dataset is provided
 

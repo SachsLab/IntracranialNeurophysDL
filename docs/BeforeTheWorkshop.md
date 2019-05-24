@@ -59,15 +59,21 @@ for Part1).
     * Configure the PyCharm IntracranialNeurophysDL project to use the indl environment.
     ([Instructions here.](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/ConfigurePyCharmCondaEnvironment.pdf))
     
-## Local Deep Learning
+## Local Deep Learning or in Cloud with Google Colaboratory 
 
-Decide if you are going to do deep learning on your local computer, or remotely.
+Decide if you are going to do deep learning on your local computer, or remotely using Colab.
 Doing it on your local computer has some advantages (easier data management),
 but the main disadvantage is that you need a decent nVidia GPU.
 
+### Local Configuration 
 If your laptop has an nVidia GPU, or if you will return to a workstation with an nVidia GPU
 then please continue by following the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
-document. Otherwise you can stop here.
+document. 
 
 After you've completed the local config for deep learning, try running the jupyter-notebook
 server and running the notebooks/01_00_tensorflow_test.ipynb notebook.
+
+### Google Colaboratory
+We suggest familiarizing yourself with colab by going over the [Welcome Notebook](https://colab.research.google.com/notebooks/welcome.ipynb) 
+and the [TensorFlow GPU exercise](https://colab.research.google.com/notebooks/gpu.ipynb).
+Please note that Chrome is the recommended browser.

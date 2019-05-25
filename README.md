@@ -19,21 +19,22 @@ algorithms we aim to cover include convolutional neural nets (CNN) and several f
 Attendees are expected to have a basic understanding of machine learning concepts, have basic familiarity with Python
 syntax, and have an interest in applying deep learning to extracellular neurophysiology data.
 For each topic, attendees will work through prepared examples using real data and thus are expected to bring their own
-laptop and have configured their deep learning environment (instructions will be provided in the weeks before the workshop).
+laptop. Their laptop should be configured prior to the workshop (instructions will be provided in the weeks before the workshop).
 
 # Tools in scope
 
 The workshop is opinionated in its selection of development environment, deep learning framework, and example datasets.
 There are many tools to choose from, but we choose to use the TensorFlow framework and Keras API,
-and we require a GPU (tensorflow-gpu). The workshop environment requires many more packages but mostly as dependencies;
-the workshop material focuses on the use of TensorFlow.
+and we require a GPU (tensorflow-gpu). If your laptop does not have a GPU then you can do most of the deep learning
+on the cloud in Google Colab.
 
 # Getting started
 
 Follow the instructions in the [BeforeTheWorkshop](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md) document.
 
-When you have finished configuring your environment, you should be able to interact with the workshop notebooks.
-Additionally, your environment should also have other notebooks for your reference, including
+When you have finished configuring your environment, you should be able to interact with the workshop notebooks,
+either locally or remotely.
+For users with GPUs, the instructions also direct you to third party notebooks for your reference, including
 "Introduction to TensorFlow", and the fast.ai course notebooks.
 
 ## Working with the Workshop Notebooks
@@ -60,27 +61,13 @@ We have curated several datasets specifically for this workshop. Please see the
 
 Smaller datasets will be downloaded on demand as required by each lesson.
 
-Larger datasets will need to be downloaded in advance. TODO: Download instructions.
+Larger datasets are not required but you may download them following the instructions in the data directory
+for your own exploration outside the workshop.
 
 # Lesson Plan
 
-## Before the workshop.
-
-You should have already completed either the [configuration instructions](#configuring-your-environment)
-and have a jupyter notebook instance running.
-
-If you are unfamiliar with Jupyter notebooks then you should spend a few minutes going through the
-fastaiv3/dl1/00_notebook_tutorial.ipynb notebook.
-
-Afterwards, you should go through a couple of the notebooks in `tensorflow/tutorials/keras/`, starting with
-`basic_classification.ipynb`.
-
-Keen learners may be interested in going through the rest of the fast.ai courses as well.
-fast.ai uses PyTorch, which we do not use in this workshops, but the deep learning principles are the same.
-
-## Workshop Materials
-
 Please refer to the [Syllabus](https://github.com/SachsLab/IntracranialNeurophysDL/blob/master/docs/Syllabus.md).
 
-Each workshop _Part_ comprises one or more notebooks found in the _notebooks_ folder. Follow the notebooks in order
-as outlined in the Syllabus.
+Each workshop _Part_ comprises one pdf in the _slides_ folder
+and one or more notebooks in the _notebooks_ folder.
+Follow the slides in order and the notebooks to which they direct.

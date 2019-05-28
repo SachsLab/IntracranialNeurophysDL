@@ -87,3 +87,27 @@ def from_neuropype_h5(filename):
                                         props=_recurse_get_dict_from_group(chunk_group.get('props')))))
 
     return chunks
+
+
+def load_faces_houses(data_path, sub_id, feature_set='full'):
+    """
+    Get a dataset from the KJM faces_basic dataset.
+    :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
+    :param sub_id: Subject ID (2-character string)
+    :param feature_set: 'full' or 'bp' for band-power
+    :return: X, Y, ax_info
+    """
+    test_file = data_path / 'converted' / 'faces_basic' / (sub_id + '_' + feature_set + '.h5')
+    chunks = from_neuropype_h5(test_file)
+    chunk_names = [_[0] for _ in chunks]
+    chunk = chunks[chunk_names.index('signals')][1]
+    ax_types = [_['type'] for _ in chunk['axes']]
+    instance_axis = chunk['axes'][ax_types.index('instance')]
+    X = chunk['data']
+    Y = instance_axis['data']['Marker'].values.reshape(-1, 1)
+    ax_info = {'instance_data': instance_axis['data'],
+               'fs': chunk['axes'][ax_types.index('time')]['nominal_rate'],
+               'timestamps': chunk['axes'][ax_types.index('time')]['times'],
+               'channel_names': chunk['axes'][ax_types.index('space')]['names']
+               }
+    return X, Y, ax_info

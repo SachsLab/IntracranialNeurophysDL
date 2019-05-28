@@ -51,7 +51,7 @@ for Part1).
 * Install Python packages and their dependencies through conda
     * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py`
 * Install a few additional packages through pip
-    * `pip install sklearn-pandas pandas-summary isoweek kaggle`
+    * `pip install sklearn-pandas pandas-summary isoweek kaggle keras-tqdm keras-vis`
 * Clone this repository and open it in PyCharm.
     * Open a terminal/anaconda prompt and cd to a directory with a lot of space. (e.g. <strong> D:\DL\ </strong> )
     * `git clone https://github.com/SachsLab/IntracranialNeurophysDL.git`

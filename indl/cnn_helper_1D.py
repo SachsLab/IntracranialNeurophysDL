@@ -137,7 +137,7 @@ def visualize_layer(model, layer_idx,
                     else:
                         from_logits = output_layer.activation != tf.keras.activations.softmax
                         loss_value = K.sparse_categorical_crossentropy(f_ix, K.mean(layer_act, axis=-2),
-                                                                       from_logits=from_logits)
+                                                                       from_logits=from_logits)[0]
 
                 gradients = tape.gradient(loss_value, test_dat)
                 # normalization trick: we normalize the gradient
@@ -154,7 +154,7 @@ def visualize_layer(model, layer_idx,
             n_samples_intermediate = int(n_samples_intermediate / (upsampling_factor ** up))
             test_dat = upsample_timeseries(test_dat, n_samples_intermediate, axis=1)
 
-        print('Costs of filter: {:5.0f} ( {:4.2f}s )'.format(loss_value, time.time() - s_time))
+        print('Costs of filter: {:5.0f} ( {:4.2f}s )'.format(loss_value.numpy(), time.time() - s_time))
         test_dat = upsample_timeseries(test_dat, n_samples_out, axis=1)
         maximizing_activations.append((test_dat[0].numpy(), loss_value.numpy()))
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
             tmp_path.unlink()
     model.summary()
 
-    maximizing_activations = visualize_layer(model, layer_idx, epochs=n_steps,
+    maximizing_activations = visualize_layer(model, layer_idx, epochs=n_steps, loss_as_exclusive=True,
                                              upsampling_steps=1, upsampling_factor=1,
                                              filter_range=(0, max_n_filters),
                                              output_dim=(701, model.get_input_shape_at(0)[-1]))
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     colour_codes = map('C{}'.format, cycle(range(10)))
 
     plt.figure()
-    for chan_ix in range(3):
+    for chan_ix in [15, 9, 8]:
         plt.plot(stitched_data[:, :, chan_ix], color=next(colour_codes))
     plt.show()
 

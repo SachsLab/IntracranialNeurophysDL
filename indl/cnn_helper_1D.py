@@ -11,6 +11,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
+import scipy.interpolate
 
 
 def normalize(x):
@@ -25,198 +26,127 @@ def normalize(x):
     return x / (K.sqrt(K.mean(K.square(x))) + K.epsilon())
 
 
-def deprocess_timeseries(x):
-    """utility function to convert a float array into a valid multi-channel timeseries.
+def upsample_timeseries(test_dat, n_resamples, axis=1):
+    y = test_dat.numpy()
+    x = np.linspace(0, 1, y.shape[axis])
+    f_interp = scipy.interpolate.interp1d(x, y, axis=axis)
+    xnew = np.linspace(0, 1, n_resamples)
+    y = f_interp(xnew)
+    return tf.convert_to_tensor(y.astype(np.float32))
+
+
+def _stitch_filters(max_acts, n=None):
+    """Draw the best filters in a nxn grid.
 
     # Arguments
-        x: A numpy-array representing the generated image.
-
-    # Returns
-        A processed numpy-array, which could be used in e.g. imshow.
+        filters: A List of generated images and their corresponding losses
+                 for each processed filter.
+        n: dimension of the grid.
+           If none, the largest possible square will be used
     """
-    # normalize tensor: center on 0., ensure std is 0.25
-    x -= x.mean()
-    x /= (x.std() + K.epsilon())
-    x *= 0.25
+    if n is None:
+        n = int(np.floor(np.sqrt(len(max_acts))))
 
-    # clip to [0, 1]
-    x += 0.5
-    x = np.clip(x, 0, 1)
+    # the filters that have the highest loss are assumed to be better-looking.
+    # we will only keep the top n*n filters.
+    max_acts.sort(key=lambda x: x[1], reverse=True)
+    max_acts = max_acts[:n * n]
 
-    # convert to RGB array
-    x *= 255
-    if K.image_data_format() == 'channels_first':
-        x = x.transpose((1, 2, 0))
-    x = np.clip(x, 0, 255).astype('uint8')
-    return x
+    output_dim = max_acts[0][0].shape
 
+    act_dat = np.stack([_[0] for _ in max_acts], axis=1)
+    for act_ix in range(act_dat.shape[1]):
+        temp = act_dat[:, act_ix, :]
+        f_min, f_max = temp.min(), temp.max()
+        act_dat[:, act_ix, :] = (temp - f_min) / (f_max - f_min)
 
-def process_timeseries(x, former):
-    """utility function to convert a valid uint8 image back into a float array.
-       Reverses `deprocess_image`.
+    MARGIN = 5
+    n_x = n * output_dim[0] + (n - 1) * MARGIN
+    stitched_filters = np.nan * np.ones((n_x, n, output_dim[1]))
 
-    # Arguments
-        x: A numpy-array, which could be used in e.g. imshow.
-        former: The former numpy-array.
-                Need to determine the former mean and variance.
+    # fill the picture with our saved filters
+    for i in range(n):
+        for j in range(n):
+            dat = act_dat[:, i * n + j, :]
+            width_margin = (output_dim[0] + MARGIN) * i
+            stitched_filters[width_margin: width_margin + output_dim[0], j, :] = dat - j
 
-    # Returns
-        A processed numpy-array representing the generated image.
-    """
-    if K.image_data_format() == 'channels_first':
-        x = x.transpose((2, 0, 1))
-    return (x / 255 - 0.5) * 4 * former.std() + former.mean()
+    return stitched_filters
 
 
-def visualize_layer(model,
-                    layer_idx,
-                    step=1.,
-                    epochs=200,
-                    upscaling_steps=9,
-                    upscaling_factor=1.2,
-                    output_dim=(801, 58),
-                    filter_range=(0, None)):
+def visualize_layer(model, layer_idx,
+                    output_dim=(801, 58), filter_range=(0, None),
+                    step=1., epochs=200,
+                    upsampling_steps=9, upsampling_factor=1.2
+                    ):
     """Visualizes the most relevant filters of one conv-layer in a certain model.
     https://github.com/keras-team/keras/blob/master/examples/conv_filter_visualization.py
     # Arguments
         model: The model containing layer_name.
-        layer_name: The name of the layer to be visualized.
-                    Has to be a part of model.
+        layer_idx: The index of the layer to be visualized.
         step: step size for gradient ascent.
         epochs: Number of iterations for gradient ascent.
         upscaling_steps: Number of upscaling steps.
-                         Starting image is in this case (80, 80).
-        upscaling_factor: Factor to which to slowly upgrade
-                          the image towards output_dim.
-        output_dim: [img_width, img_height] The output image dimensions.
-        filter_range: Tupel[lower, upper]
+        upscaling_factor: Factor to which to slowly upgrade the timeseries towards output_dim.
+        output_dim: [n_timesteps, n_channels] The output image dimensions.
+        filter_range: [lower, upper]
                       Determines the to be computed filter numbers.
-                      If the second value is `None`,
-                      the last filter will be inferred as the upper boundary.
+                      If the second value is `None`, the last filter will be inferred as the upper boundary.
     """
 
-    def _generate_filter_dat(output_shape,
-                             layer_output,
-                             filter_index):
-        """Generates image for one particular filter.
-
-        # Arguments
-            input_img: The input-image Tensor.
-            layer_output: The output-image Tensor.
-            filter_index: The to be processed filter number.
-                          Assumed to be valid.
-
-        #Returns
-            Either None if no image could be generated.
-            or a tuple of the image (array) itself and the last loss.
-        """
-        s_time = time.time()
-
-        loss_object = K.mean(layer_output[:, :, filter_index])
-
-        @tf.function
-        def iterate(train_dat):
-            with tf.GradientTape() as tape:
-                tape.watch(train_dat)
-                predictions = model(train_dat)
-                loss = loss_object(predictions)
-            gradients = tape.gradient(loss, train_dat)
-            # normalization trick: we normalize the gradient
-            gradients = normalize(gradients)
-            return loss, gradients
-
-        # we start with some random noise
-        # intermediate_dim = tuple(
-        #     int(x / (upscaling_factor ** upscaling_steps)) for x in output_dim)
-        #
-        # input_dat = np.random.random((1, intermediate_dim[0], intermediate_dim[1])).astype(np.float32)
-
-        # Slowly upscaling towards the original size prevents
-        # a dominating high-frequency of the to visualized structure
-        # as it would occur if we directly compute the 412d-image.
-        # Behaves as a better starting point for each following dimension
-        # and therefore avoids poor local minima
-
-        input_data = tf.convert_to_tensor(np.random.randn(*output_shape).astype(np.float32)[None, :, :])
-
-        for up in reversed(range(upscaling_steps)):
-            # we run gradient ascent for e.g. 20 steps
-            for _ in range(epochs):
-                loss_value, grads_value = iterate([input_data])
-                input_data += grads_value * step
-
-                # some filters get stuck to 0, we can skip them
-                if loss_value <= K.epsilon():
-                    return None
-
-            if False:
-                # Calulate upscaled dimension
-                intermediate_dim = tuple(
-                    int(x / (upscaling_factor ** up)) for x in output_dim)
-                # TODO: Upscale
-                dat = deprocess_timeseries(input_dat[0])
-                # TODO: Reshape
-                input_dat = [process_timeseries(dat, input_dat[0])]
-
-        if False:
-            # decode the resulting input image
-            dat = deprocess_timeseries(input_dat[0])
-            e_time = time.time()
-            print('Costs of filter {:3}: {:5.0f} ( {:4.2f}s )'.format(filter_index,
-                                                                      loss_value,
-                                                                      e_time - s_time))
-        return input_data[0], loss_value
-
-    def _stitch_filters(max_acts, n=None):
-        """Draw the best filters in a nxn grid.
-
-        # Arguments
-            filters: A List of generated images and their corresponding losses
-                     for each processed filter.
-            n: dimension of the grid.
-               If none, the largest possible square will be used
-        """
-        if n is None:
-            n = int(np.floor(np.sqrt(len(max_acts))))
-
-        # the filters that have the highest loss are assumed to be better-looking.
-        # we will only keep the top n*n filters.
-        max_acts.sort(key=lambda x: x[1], reverse=True)
-        max_acts = max_acts[:n * n]
-
-        MARGIN = 5
-        width = n * output_dim[0] + (n - 1) * MARGIN
-        height = n * output_dim[1] + (n - 1) * MARGIN
-        stitched_filters = np.zeros((width, height, 3), dtype='uint8')
-
-        # fill the picture with our saved filters
-        for i in range(n):
-            for j in range(n):
-                img, _ = max_acts[i * n + j]
-                width_margin = (output_dim[0] + MARGIN) * i
-                height_margin = (output_dim[1] + MARGIN) * j
-                stitched_filters[
-                    width_margin: width_margin + output_dim[0],
-                    height_margin: height_margin + output_dim[1], :] = img
-
     output_layer = model.layers[layer_idx]
+
     max_filts = len(output_layer.get_weights()[1])
     max_filts = max_filts if filter_range[1] is None else min(max_filts, filter_range[1])
-    # iterate through each filter and generate its corresponding time series
+
+    # iterate through each filter in this layer and generate its corresponding time series
     maximizing_activations = []
     for f_ix in range(filter_range[0], max_filts):
+        s_time = time.time()
         if isinstance(output_layer, tf.keras.layers.Conv1D):
             model_output = output_layer.output[:, :, f_ix]
         else:
             model_output = output_layer.output[f_ix]
         max_model = tf.keras.Model(model.input, model_output)
-        max_data, loss_vals = _generate_filter_dat(output_dim, max_model)
-        if max_data is not None:
-            maximizing_activations.append(max_data)
 
-    print('{} filter processed.'.format(len(maximizing_activations)))
+        # we start with some random noise that is smaller than the expected output.
+        n_samples_out = output_dim[0]
+        n_samples_intermediate = int(n_samples_out / (upsampling_factor ** upsampling_steps))
+        test_dat = tf.convert_to_tensor(
+            np.random.random((1, n_samples_intermediate, output_dim[-1])).astype(np.float32))
+
+        for up in reversed(range(upsampling_steps)):
+            # Run gradient ascent
+            for _ in range(epochs):
+                with tf.GradientTape() as tape:
+                    tape.watch(test_dat)
+                    layer_act = max_model(test_dat)
+                    loss_value = K.mean(layer_act)
+                gradients = tape.gradient(loss_value, test_dat)
+                # normalization trick: we normalize the gradient
+                gradients = normalize(gradients)
+                test_dat += gradients * step
+
+                # some filters get stuck to 0, we can skip them
+                if loss_value <= K.epsilon():
+                    test_dat = None
+                    break
+
+            if test_dat is None:
+                break
+
+            # Now upsample the timeseries
+            n_samples_intermediate = int(n_samples_intermediate / (upsampling_factor ** up))
+            test_dat = upsample_timeseries(test_dat, n_samples_intermediate, axis=1)
+
+        if test_dat is not None:
+            print('Costs of filter: {:5.0f} ( {:4.2f}s )'.format(loss_value, time.time() - s_time))
+            test_dat = upsample_timeseries(test_dat, n_samples_out, axis=1)
+            maximizing_activations.append((test_dat[0].numpy(), loss_value.numpy()))
+
+    print('{} filters processed.'.format(len(maximizing_activations)))
     # Stitch timeseries together into one mega timeseries with NaN gaps.
-    _stitch_filters(maximizing_activations)
+    return _stitch_filters(maximizing_activations)
 
 
 if __name__ == '__main__':
@@ -232,6 +162,7 @@ if __name__ == '__main__':
 
     if False:
         import tempfile
+        # TODO: When processing softmax layer, second last dense layer should be converted from relu to linear.
         model.layers[-1].activation = tf.keras.activations.linear
         # Save and load the model to actually apply the change.
         tmp_path = Path(tempfile.gettempdir()) / (next(tempfile._get_candidate_names()) + '.h5')
@@ -243,6 +174,18 @@ if __name__ == '__main__':
     model.summary()
 
     layer_idx = 14  # [2, 6, 10, 14]
-    visualize_layer(model, layer_idx,
-                    upscaling_steps=1, upscaling_factor=1.0,
-                    output_dim=model.get_input_shape_at(0)[1:])
+    stitched_data = visualize_layer(model, layer_idx,  upsampling_steps=1, upsampling_factor=1,
+                                    filter_range=(0, 12),
+                                    output_dim=(801, model.get_input_shape_at(0)[-1]))
+
+    import matplotlib.pyplot as plt
+
+    # Create a colour code cycler e.g. 'C0', 'C1', etc.
+    from itertools import cycle
+    colour_codes = map('C{}'.format, cycle(range(10)))
+
+    plt.figure()
+    for chan_ix in range(3):
+        plt.plot(stitched_data[:, :, chan_ix], color=next(colour_codes))
+    plt.show()
+

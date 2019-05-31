@@ -16,12 +16,10 @@ BEHAV_RATE = 250.  # Within machine precision of 1 / np.mean(np.diff(t_vec))
 SPIKES_RATE = 24414.0625
 
 
-def get_behav_and_spikes(filename, fast_spike_times=True):
+def get_behav_and_spikes(filename):
     """
     Get behaviour and spiketrain data from mat file.
     :param filename: Full path to mat file.
-    :param fast_spike_times: True to use np.searchsorted. This is much faster
-        but less accurate. Each spike might be off by one sample in either direction.
     :return: (behaviour, spiketrain) - Each is a NeuroPype Chunk.
     """
 
@@ -58,20 +56,19 @@ def get_behav_and_spikes(filename, fast_spike_times=True):
                 st_ix = chan_ix * n_units + unit_ix
                 spike_times = all_spikes[st_ix][np.logical_and(all_spikes[st_ix] >= t_vec[0],
                                                                all_spikes[st_ix] <= t_vec[-1])]
-                if fast_spike_times:
-                    # Faster but less accurate. Each spike might be off by one sample in either direction.
-                    spike_t_inds.extend(np.searchsorted(t_vec, spike_times))
-                else:
-                    # Slower but puts the spike on the nearest sample time.
-                    spike_t_inds.extend([np.argmin(np.abs(st - t_vec)) for st in spike_times])
+
+                unit_spike_t_inds = np.searchsorted(t_vec, spike_times)  # timestamp that the spike was BEFORE
+                b_shift_down = (spike_times - t_vec[unit_spike_t_inds]) < (-0.5/SPIKES_RATE)  # spikes nearer prev. ts
+                unit_spike_t_inds[b_shift_down] -= 1
+                spike_t_inds.extend(unit_spike_t_inds)
+
                 spike_unit_inds.extend([chan_ix * n_units + unit_ix] * len(spike_times))
         sparse_dat = np.ones_like(spike_t_inds, dtype=np.bool)
         sparse_mat = csr_matrix((sparse_dat, (spike_unit_inds, spike_t_inds)),
                                 shape=(n_chans*n_units, len(t_vec)),
                                 dtype=np.bool)
-        np.asarray(list(range(n_units)) * n_chans, dtype=int)
         st_space_ax = npe.SpaceAxis(names=np.repeat(chan_names, n_units),
-                                    units=np.tile(np.arange(0, 3, dtype=np.int8), n_chans))
+                                    units=np.tile(np.arange(0, n_units, dtype=np.int8), n_chans))
         st_time_ax = npe.TimeAxis(times=t_vec, nominal_rate=SPIKES_RATE)
         spktrain = npe.Chunk(block=npe.Block(data=sparse_mat, axes=(st_space_ax, st_time_ax)),
                              props={npe.Flags.has_markers: False, npe.Flags.is_sparse: True, npe.Flags.is_signal: True})
@@ -110,6 +107,10 @@ def get_broadband(filename):
 
 
 if __name__ == "__main__":
+    ROW_RANGE = [13, 19]
+    if Path.cwd().stem == 'joeyo':
+        import os
+        os.chdir('../..')
     # Load a csv file that describes the datasets.
     working_dir = Path.cwd() / 'data' / 'joeyo'
     datasets_file = working_dir / 'datasets.csv'
@@ -121,12 +122,14 @@ if __name__ == "__main__":
             datasets.append(row)
 
     # Create a local folder to store the data
-    local_dir = working_dir / 'convert'
+    local_dir = working_dir / 'converted'
     if not local_dir.is_dir():
         local_dir.mkdir()
     print("Saving converted data into {}".format(local_dir))
 
-    for row in datasets:
+    for row_ix, row in enumerate(datasets):
+        if row_ix < ROW_RANGE[0] or row_ix > ROW_RANGE[1]:
+            continue
         print("Converting {}...".format(row['filename']))
         _fname = working_dir / 'download' / row['filename']
         behav_chnk, spikes_chnk = get_behav_and_spikes(_fname.with_suffix('.mat'))
@@ -144,7 +147,26 @@ if __name__ == "__main__":
         spk_pkt = npn.Interpolate(new_points=behav_chnk.block.axes[npe.time].times, kind='nearest')(data=spk_pkt)
         # Merge the two streams together and save as H5.
         data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt)
+
+        if _fname.with_suffix('.nwb').exists():
+            bb_dict = get_broadband(_fname.with_suffix('.nwb'))
+            time_ax = npe.TimeAxis(times=bb_dict['t'], nominal_rate=bb_dict['effective srate'])
+            space_ax = npe.SpaceAxis(names=bb_dict['names'], positions=bb_dict['locs'])
+            lfp_pkt = npe.Packet({'lfps': npe.Chunk(block=npe.Block(data=bb_dict['data'], axes=(time_ax, space_ax)),
+                                                    props={npe.Flags.has_markers: False, npe.Flags.is_signal: True})})
+            lfp_pkt = npn.Resample(rate=1000.0)(data=lfp_pkt)  # Includes filtering
+            # Common-average referencing.
+            lfp_pkt = npn.Rereferencing(axis='space', reference_range=':')(data=lfp_pkt)
+            # High-pass filtering
+            lfp_pkt = npn.IIRFilter(frequencies=[0.05, 0.2], mode='highpass', offline_filtfilt=True)(data=lfp_pkt)
+            # Notch filter out powerline noise. TODO: Also filter out harmonics with a Comb filter.
+            lfp_pkt = npn.IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=lfp_pkt)
+
+            data_pkt = npn.MergeStreams()(data1=data_pkt, data2=lfp_pkt)
+
         npn.ExportH5(filename=str((local_dir / row['filename']).with_suffix('.h5')))(data=data_pkt)
 
-        if False and _fname.with_suffix('.nwb').exists():
-            bb_dict = get_broadband(_fname.with_suffix('.nwb'))
+# from the data/joeyo folder
+# Once only: kaggle datasets init -p converted
+# Once only: kaggle datasets create -p converted
+# On updates: kaggle datasets version -m "Updated data." -p converted

@@ -10,6 +10,8 @@ J Neural Eng 15(2): 026010. doi:10.1088/1741-2552/aa9e95
 
 And its code here: https://github.com/jgmakin/rbmish 
 
+[Here is a separate one using LSTM](https://arxiv.org/abs/1901.00708)
+
 
 The individual dataset names are listed in datasets.csv, along with their md5
 checksum, and the name and md5 checksum of supplementary data if available.

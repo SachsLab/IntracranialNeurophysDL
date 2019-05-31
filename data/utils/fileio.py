@@ -108,6 +108,17 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
     ax_info = {'instance_data': instance_axis['data'],
                'fs': chunk['axes'][ax_types.index('time')]['nominal_rate'],
                'timestamps': chunk['axes'][ax_types.index('time')]['times'],
-               'channel_names': chunk['axes'][ax_types.index('space')]['names']
+               'channel_names': chunk['axes'][ax_types.index('space')]['names'],
+               'channel_locs': chunk['axes'][ax_types.index('space')]['positions']
                }
     return X, Y, ax_info
+
+
+if __name__ == '__main__':
+    from pathlib import Path
+    if Path.cwd().stem == 'utils':
+        import os
+        os.chdir('../..')
+    datadir = Path.cwd() / 'data' / 'kjm_ecog'
+    X, Y, ax_info = load_faces_houses(datadir, 'mv')
+    print(ax_info)

@@ -134,19 +134,20 @@ if __name__ == "__main__":
         _fname = working_dir / 'download' / row['filename']
         behav_chnk, spikes_chnk = get_behav_and_spikes(_fname.with_suffix('.mat'))
         behav_pkt = npe.Packet({'behav': behav_chnk})
-        spk_pkt = npe.Packet({'spikerates': spikes_chnk})
+        spk_pkt = npe.Packet({'spiketimes': spikes_chnk})
         # With spiking data, get rid of spikes within 1.0-msec refractory period,
         # get rid of spikes that occur on 30% of all channels on the exact same sample,
         # and bin spikes to resample at the rate nearest 1000.0 that is an integer factor of the input rate.
         spk_pkt = npn.SanitizeSpikeTrain(min_refractory_period=1.0, downsample_rate=1000.,
                                          chan_pcnt_noise_thresh=30., offline_min_spike_rate=0.01)(data=spk_pkt)
         # Convert spike trains to continuous spike rates using a 0.05-second gaussian kernel.
-        spk_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.05, unit='seconds')(data=spk_pkt)
+        rates_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.05, unit='seconds')(data=spk_pkt)
+        rates_pkt = npn.RenameStreams({'spiketimes': 'spikerates'})(data=rates_pkt)
         # Resample spike rates at the same samples as the behavior.
-        spk_pkt = npn.Resample(rate=250.0)(data=spk_pkt)
-        spk_pkt = npn.Interpolate(new_points=behav_chnk.block.axes[npe.time].times, kind='nearest')(data=spk_pkt)
+        rates_pkt = npn.Resample(rate=250.0)(data=rates_pkt)
+        rates_pkt = npn.Interpolate(new_points=behav_chnk.block.axes[npe.time].times, kind='nearest')(data=rates_pkt)
         # Merge the two streams together and save as H5.
-        data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt)
+        data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt, data3=rates_pkt)
 
         if _fname.with_suffix('.nwb').exists():
             bb_dict = get_broadband(_fname.with_suffix('.nwb'))
@@ -161,6 +162,10 @@ if __name__ == "__main__":
             lfp_pkt = npn.IIRFilter(frequencies=[0.05, 0.2], mode='highpass', offline_filtfilt=True)(data=lfp_pkt)
             # Notch filter out powerline noise. TODO: Also filter out harmonics with a Comb filter.
             lfp_pkt = npn.IIRFilter(frequencies=[57, 63], mode='bandstop', offline_filtfilt=True)(data=lfp_pkt)
+            # Slice LFP to same timespan as behaviour and rates
+            behav_ts = behav_pkt.chunks['behav'].block.axes['time'].times
+            new_lfp_range = str(behav_ts[0] - (5 / 1000)) + ':' + str(behav_ts[-1] + 1 / 1000)
+            lfp_pkt = npn.SelectRange(axis='time', selection=new_lfp_range, unit='seconds')(data=lfp_pkt)
 
             data_pkt = npn.MergeStreams()(data1=data_pkt, data2=lfp_pkt)
 

@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 
 def _recurse_get_dict_from_group(grp):
@@ -89,9 +90,34 @@ def from_neuropype_h5(filename):
     return chunks
 
 
+def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps'):
+    """
+    Load data from the joeyo dataset.
+    :param data_path: path to joeyo data dir (i.e., parent of 'converted'
+    :param sess_id: 'indy_2016' + one of '0921_01', '0927_04', '0927_06', '0930_02', '0930_05' '1005_06' '1006_02'
+    :param x_chunk: 'lfps', 'spikerates', or 'spiketimes'
+    :return: X, Y, X_ax_info, Y_ax_info
+    """
+    file_path = Path(data_path) / 'converted' / (sess_id + '.h5')
+    chunks = from_neuropype_h5(file_path)
+    chunk_names = [_[0] for _ in chunks]
+
+    Y_chunk = chunks[chunk_names.index('behav')][1]
+    Y_ax_types = [_['type'] for _ in Y_chunk['axes']]
+    Y_ax_info = {'channel_names': Y_chunk['axes'][Y_ax_types.index('space')]['names'],
+                 'timestamps': Y_chunk['axes'][Y_ax_types.index('time')]['times']}
+
+    X_chunk = chunks[chunk_names.index(x_chunk)][1]
+    X_ax_types = [_['type'] for _ in X_chunk['axes']]
+    X_ax_info = {'channel_names': X_chunk['axes'][X_ax_types.index('space')]['names'],
+                 'timestamps': X_chunk['axes'][X_ax_types.index('time')]['times']}
+
+    return X_chunk['data'], Y_chunk['data'], X_ax_info, Y_ax_info
+
+
 def load_faces_houses(data_path, sub_id, feature_set='full'):
     """
-    Get a dataset from the KJM faces_basic dataset.
+    Load a file from the KJM faces_basic dataset.
     :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
     :param sub_id: Subject ID (2-character string)
     :param feature_set: 'full' or 'bp' for band-power
@@ -120,5 +146,7 @@ if __name__ == '__main__':
         import os
         os.chdir('../..')
     datadir = Path.cwd() / 'data' / 'kjm_ecog'
-    X, Y, ax_info = load_faces_houses(datadir, 'mv')
-    print(ax_info)
+    res_tuple = load_faces_houses(datadir, 'mv')
+    # datadir = Path.cwd() / 'data' / 'joeyo'
+    # res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
+    print(res_tuple[2])  # X_ax_info

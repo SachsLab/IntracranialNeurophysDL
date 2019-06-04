@@ -71,3 +71,8 @@ Please refer to the [Syllabus](https://github.com/SachsLab/IntracranialNeurophys
 Each workshop _Part_ comprises one pdf in the _slides_ folder
 and one or more notebooks in the _notebooks_ folder.
 Follow the slides in order and the notebooks to which they direct.
+
+# Additional Resources
+
+* fastai
+* [tensorflow docs](https://github.com/tensorflow/docs/tree/master/site/en/r2/tutorials)

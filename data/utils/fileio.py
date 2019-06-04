@@ -90,7 +90,7 @@ def from_neuropype_h5(filename):
     return chunks
 
 
-def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps'):
+def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps', zscore=True):
     """
     Load data from the joeyo dataset.
     :param data_path: path to joeyo data dir (i.e., parent of 'converted'
@@ -105,12 +105,20 @@ def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps'):
     Y_chunk = chunks[chunk_names.index('behav')][1]
     Y_ax_types = [_['type'] for _ in Y_chunk['axes']]
     Y_ax_info = {'channel_names': Y_chunk['axes'][Y_ax_types.index('space')]['names'],
-                 'timestamps': Y_chunk['axes'][Y_ax_types.index('time')]['times']}
+                 'timestamps': Y_chunk['axes'][Y_ax_types.index('time')]['times'],
+                 'fs': Y_chunk['axes'][Y_ax_types.index('time')]['nominal_rate']}
 
     X_chunk = chunks[chunk_names.index(x_chunk)][1]
     X_ax_types = [_['type'] for _ in X_chunk['axes']]
     X_ax_info = {'channel_names': X_chunk['axes'][X_ax_types.index('space')]['names'],
-                 'timestamps': X_chunk['axes'][X_ax_types.index('time')]['times']}
+                 'timestamps': X_chunk['axes'][X_ax_types.index('time')]['times'],
+                 'fs': X_chunk['axes'][X_ax_types.index('time')]['nominal_rate']}
+
+    if zscore:
+        X_chunk['data'] = (X_chunk['data'] - np.mean(X_chunk['data'], axis=1, keepdims=True))\
+                          / np.std(X_chunk['data'], axis=1, keepdims=True)
+        Y_chunk['data'] = (Y_chunk['data'] - np.mean(Y_chunk['data'], axis=1, keepdims=True)) \
+                          / np.std(Y_chunk['data'], axis=1, keepdims=True)
 
     return X_chunk['data'], Y_chunk['data'], X_ax_info, Y_ax_info
 
@@ -145,8 +153,8 @@ if __name__ == '__main__':
     if Path.cwd().stem == 'utils':
         import os
         os.chdir('../..')
-    datadir = Path.cwd() / 'data' / 'kjm_ecog'
-    res_tuple = load_faces_houses(datadir, 'mv')
-    # datadir = Path.cwd() / 'data' / 'joeyo'
-    # res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
+    # datadir = Path.cwd() / 'data' / 'kjm_ecog'
+    # res_tuple = load_faces_houses(datadir, 'mv')
+    datadir = Path.cwd() / 'data' / 'joeyo'
+    res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
     print(res_tuple[2])  # X_ax_info

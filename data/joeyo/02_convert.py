@@ -107,7 +107,7 @@ def get_broadband(filename):
 
 
 if __name__ == "__main__":
-    ROW_RANGE = [13, 19]
+    ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
     if Path.cwd().stem == 'joeyo':
         import os
         os.chdir('../..')
@@ -143,9 +143,14 @@ if __name__ == "__main__":
         # Convert spike trains to continuous spike rates using a 0.05-second gaussian kernel.
         rates_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.05, unit='seconds')(data=spk_pkt)
         rates_pkt = npn.RenameStreams({'spiketimes': 'spikerates'})(data=rates_pkt)
-        # Resample spike rates at the same samples as the behavior.
-        rates_pkt = npn.Resample(rate=250.0)(data=rates_pkt)
-        rates_pkt = npn.Interpolate(new_points=behav_chnk.block.axes[npe.time].times, kind='nearest')(data=rates_pkt)
+        # Resample behavior at the same times as spike rates, or vice versa
+        rates_pkt = npn.Resample(rate=250.0)(data=rates_pkt)  # Includes low-pass filtering.
+        if len(behav_chnk.block.axes[npe.time]) >= len(rates_pkt.chunks['spikerates'].block.axes[npe.time]):
+            behav_pkt = npn.Interpolate(new_points=rates_pkt.chunks['spikerates'].block.axes[npe.time].times,
+                                        kind='nearest')(data=behav_pkt)
+        else:
+            rates_pkt = npn.Interpolate(new_points=behav_pkt.chunks['behav'].block.axes[npe.time].times,
+                                        kind='nearest')(data=rates_pkt)
         # Merge the two streams together and save as H5.
         data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt, data3=rates_pkt)
 

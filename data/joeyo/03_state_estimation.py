@@ -13,7 +13,7 @@ sess_names = ['indy_2016' + _ for _ in ['0921_01', '0927_04', '0927_06', '0930_0
 # We use the first session here
 sess_name = sess_names[0]
 # Extracting spike rates and cursor positions
-spike_rate, behav, spike_rate_ax_info, behav_ax_info = load_joeyo_reaching(datadir, sess_name, x_chunk='spikerates')
+spike_rate, behav, spike_rate_ax_info, behav_ax_info = load_joeyo_reaching(datadir, sess_name, x_chunk='mu_rates')
 cursor_pos = behav[:2, :]
 # Choosing our state to be the cursor position
 x = cursor_pos

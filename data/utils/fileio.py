@@ -90,12 +90,13 @@ def from_neuropype_h5(filename):
     return chunks
 
 
-def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps', zscore=True):
+def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps', zscore=False):
     """
     Load data from the joeyo dataset.
     :param data_path: path to joeyo data dir (i.e., parent of 'converted'
     :param sess_id: 'indy_2016' + one of '0921_01', '0927_04', '0927_06', '0930_02', '0930_05' '1005_06' '1006_02'
-    :param x_chunk: 'lfps', 'spikerates', or 'spiketimes'
+    :param x_chunk: 'lfps' (default), 'mu_rates', 'su_rates', 'spiketimes', or 'mu_spiketimes'.
+    :param zscore: Set to True to z-score data before returning. default: False
     :return: X, Y, X_ax_info, Y_ax_info
     """
     file_path = Path(data_path) / 'converted' / (sess_id + '.h5')
@@ -149,7 +150,6 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
 
 
 if __name__ == '__main__':
-    from pathlib import Path
     if Path.cwd().stem == 'utils':
         import os
         os.chdir('../..')

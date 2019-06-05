@@ -56,3 +56,30 @@ plt.plot(x_predict[0, :rng], x_predict[1, :rng], label="predicted")
 plt.plot(x_test[0, :rng], x_test[1, :rng], label="actual")
 plt.legend()
 plt.show()
+# If we want to use LFPs
+lfps, behav, lfps_ax_info, behav_ax_info = load_joeyo_reaching(datadir, sess_name, x_chunk='lfps')
+cursor_pos = behav[:2, :]
+lfp_time = lfps_ax_info['timestamps']
+cursor_time = behav_ax_info['timestamps']
+upsampled_cursor = np.zeros((2, np.size(lfps, 1)))
+# To get to the first sampled position (first 5 up-sampled positions will be equal to initial position)
+for i in range(5):
+    upsampled_cursor[:, i] = cursor_pos[:, 0]
+# some indices to help in the for loop
+# how many LFP samples have been generated between two cursor position samples
+num_of_samples = 0
+# index for browsing cursor position array
+indx_curs = 1
+for indx_lfp in range(5, np.size(lfps, 1)):
+    if (np.abs(lfp_time[indx_lfp] - cursor_time[indx_curs]) < 0.001):
+        num_of_samples += 1
+        position_step = (cursor_pos[:, indx_curs] - cursor_pos[:, indx_curs - 1]) / num_of_samples
+        for i in range(num_of_samples):
+            upsampled_cursor[:, indx_lfp - i] = cursor_pos[:, indx_curs] - i * position_step
+        num_of_samples = 0
+        if (indx_curs < np.size(cursor_pos, 1) - 1):
+            indx_curs += 1
+    else:
+        num_of_samples += 1
+
+

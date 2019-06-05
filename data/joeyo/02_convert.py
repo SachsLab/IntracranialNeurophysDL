@@ -107,7 +107,8 @@ def get_broadband(filename):
 
 
 if __name__ == "__main__":
-    ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
+    # ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
+    ROW_RANGE = [34, 35]  # From Ahmadi et al.
     if Path.cwd().stem == 'joeyo':
         import os
         os.chdir('../..')
@@ -139,20 +140,26 @@ if __name__ == "__main__":
         # get rid of spikes that occur on 30% of all channels on the exact same sample,
         # and bin spikes to resample at the rate nearest 1000.0 that is an integer factor of the input rate.
         spk_pkt = npn.SanitizeSpikeTrain(min_refractory_period=1.0, downsample_rate=1000.,
-                                         chan_pcnt_noise_thresh=30., offline_min_spike_rate=0.01)(data=spk_pkt)
-        # Convert spike trains to continuous spike rates using a 0.05-second gaussian kernel.
-        rates_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.05, unit='seconds')(data=spk_pkt)
-        rates_pkt = npn.RenameStreams({'spiketimes': 'spikerates'})(data=rates_pkt)
+                                         chan_pcnt_noise_thresh=30., offline_min_spike_rate=0.1)(data=spk_pkt)
+        # Convert spike trains to continuous spike rates using a 0.3-second gaussian kernel.
+        sua_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.3, unit='seconds')(data=spk_pkt)
+        sua_pkt = npn.RenameStreams({'spiketimes': 'sua_rates'})(data=sua_pkt)
+        # And multi-unit activity
+        mua_pkt = npn.SimpleSpikeSorting(cluster_method='none')(data=spk_pkt)  # Collapses across units per channel
+        mua_pkt = npn.InstantaneousEventRate(kernel='gaussian', kernel_parameter=0.3, unit='seconds')(data=mua_pkt)
+        mua_pkt = npn.RenameStreams({'spiketimes': 'mua_rates'})(data=mua_pkt)
         # Resample behavior at the same times as spike rates, or vice versa
-        rates_pkt = npn.Resample(rate=250.0)(data=rates_pkt)  # Includes low-pass filtering.
-        if len(behav_chnk.block.axes[npe.time]) >= len(rates_pkt.chunks['spikerates'].block.axes[npe.time]):
-            behav_pkt = npn.Interpolate(new_points=rates_pkt.chunks['spikerates'].block.axes[npe.time].times,
+        sua_pkt = npn.Resample(rate=250.0)(data=sua_pkt)  # Includes low-pass filtering.
+        if len(behav_chnk.block.axes[npe.time]) >= len(sua_pkt.chunks['sua_rates'].block.axes[npe.time]):
+            behav_pkt = npn.Interpolate(new_points=sua_pkt.chunks['sua_rates'].block.axes[npe.time].times,
                                         kind='nearest')(data=behav_pkt)
         else:
-            rates_pkt = npn.Interpolate(new_points=behav_pkt.chunks['behav'].block.axes[npe.time].times,
-                                        kind='nearest')(data=rates_pkt)
+            sua_pkt = npn.Interpolate(new_points=behav_pkt.chunks['behav'].block.axes[npe.time].times,
+                                      kind='nearest')(data=sua_pkt)
+            mua_pkt = npn.Interpolate(new_points=behav_pkt.chunks['behav'].block.axes[npe.time].times,
+                                      kind='nearest')(data=mua_pkt)
         # Merge the two streams together and save as H5.
-        data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt, data3=rates_pkt)
+        data_pkt = npn.MergeStreams()(data1=behav_pkt, data2=spk_pkt, data3=sua_pkt, data4=mua_pkt)
 
         if _fname.with_suffix('.nwb').exists():
             bb_dict = get_broadband(_fname.with_suffix('.nwb'))

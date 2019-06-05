@@ -125,6 +125,10 @@ Resource: [1](https://blog.keras.io/building-autoencoders-in-keras.html)
     * [LSTM in ECoG](https://www.biorxiv.org/content/10.1101/210732v2.abstract)
     * RNN for classification of MER trajectories in DBS
         * Use our trained model and one example dataset is provided
+        
+Other potential data sources:
+* [pmd](https://crcns.org/data-sets/motor-cortex/pmd-1/about-pmd-1)
+* [alm mice, licking](https://crcns.org/data-sets/motor-cortex/alm-5/about-alm-5)
 
 ### Part 6: LFADS and Transformer
 
@@ -152,6 +156,7 @@ What can trained networks teach us about the brain?
 * [Analyzing biological and artificial neural networks: challenges with opportunities for synergy?](https://www-sciencedirect-com.proxy.bib.uottawa.ca/science/article/pii/S0959438818301569)
     * Yamins et al PNAS 2014 compare activations in bioNN to aDNN.
 * [Toward an Integration of Deep Learning and Neuroscience](https://www.frontiersin.org/articles/10.3389/fncom.2016.00094/full)
+* [Pinotsis, Siegel, Miller, biorXiv 2019](https://www.biorxiv.org/content/10.1101/647222v1.abstract)
 
 Brain-inspired deep learning?
 

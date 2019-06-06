@@ -70,8 +70,15 @@ for i in range(5):
 num_of_samples = 0
 # index for browsing cursor position array
 indx_curs = 1
-for indx_lfp in range(5, np.size(lfps, 1)):
-    if (np.abs(lfp_time[indx_lfp] - cursor_time[indx_curs]) < 0.001):
+# Threshold to assume the LFP and cursor position samples are at the same time
+th = 0.001
+# Find the first point where LFP and cursor samples are at the same time
+for initial_point in range(np.size(lfps, 1)):
+    if (np.abs(lfp_time[initial_point] - cursor_time[0]) < th):
+        break
+
+for indx_lfp in range(initial_point + 1, np.size(lfps, 1)):
+    if (np.abs(lfp_time[indx_lfp] - cursor_time[indx_curs]) < th):
         num_of_samples += 1
         position_step = (cursor_pos[:, indx_curs] - cursor_pos[:, indx_curs - 1]) / num_of_samples
         for i in range(num_of_samples):
@@ -81,5 +88,3 @@ for indx_lfp in range(5, np.size(lfps, 1)):
             indx_curs += 1
     else:
         num_of_samples += 1
-
-

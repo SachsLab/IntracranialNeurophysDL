@@ -11,6 +11,7 @@ import data.utils as indl_du
 
 if __name__ == "__main__":
     ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
+    # ROW_RANGE = [34, 35]  # From Ahmadi et al.
 
     data_dir = Path.cwd() / 'data' / 'joeyo'
     datasets_file = data_dir / 'datasets.csv'

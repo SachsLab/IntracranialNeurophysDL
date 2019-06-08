@@ -122,7 +122,7 @@ or you can follow the shorter steps below.
         * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin (might already be there)
         * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64
         * <path to cuddnn bin> e.g. E:\SachsLab\Tools\Misc\cuda\bin
-    1. If you Anaconda Prompt is already open, close it and re-open it.
+    1. If your Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
     * `pip install tensorflow-gpu==2.0.0-alpha0`
@@ -135,6 +135,7 @@ or you can follow the shorter steps below.
         * As of this writing: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`
         * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
         * The end of the output should read something like `device='cuda:0'`
+    * `conda install hyperopt`
 
 1. Change to the directory from which you cloned the workshop material (e.g. <strong> D:\DL\ </strong> )
     * `D:`

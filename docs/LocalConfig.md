@@ -15,10 +15,6 @@ The provided instructions are intended for users working in the Ubuntu 18.04 des
 The original instructions were to use nvidia-docker and they are preserved as method B.
 However, the new recommended method is to setup a local environment described in method A.
 
-1. For either method, the first step is to install nvidia driver version 410.
-    * Follow [these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt), but stop after the line that says `Reboot. Check that GPUs are visible using the command: nvidia-smi
-`.
-
 #### Linux Method A: Local Config
 
 1. Identify the version of tensorflow you will be using and its requirements.
@@ -34,8 +30,8 @@ However, the new recommended method is to setup a local environment described in
     * Edit your `~/.profile` and add the following line:
         * `export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64"`
     * Log out of your Ubuntu session and log back in.
-    * Follow the instructions linked below, except skip the step to Install NVIDIA driver as they will get installed with cuda.
-        * [Link](https://www.tensorflow.org/install/gpu#install_cuda_with_apt).
+    * In the following instructions, skip the step to Install NVIDIA driver as they will get installed with CUDA.
+        * [Follow these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt).
         * [Alternative Link](https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu/1077063#1077063)
             * Note: Use `cuda-10-0` instead of `cuda-10-1`.
         * TensorRT is optional.
@@ -47,10 +43,11 @@ However, the new recommended method is to setup a local environment described in
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
 1. `conda install hyperopt`
 1. `pip install --upgrade https://storage.googleapis.com/jax-wheels/cuda100/jaxlib-latest-cp36-none-linux_x86_64.whl`
-1. `pip install --upgrade jax`
+1. `pip install --upgrade git+https://github.com/google/jax.git`
     
 
 #### Linux Method B: Using Docker
+1. Install the nVidia driver following [these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt), but stop after the line that says `Reboot. Check that GPUs are visible using the command: nvidia-smi`
 1. Install `nvidia-docker` version 2.0
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
     Installation under the Version 2.0 header in the navigation bar on the right.

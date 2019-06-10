@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from data.utils.fileio import load_joeyo_reaching
 from data.utils.KalmanFilter import ManualKalmanFilter as mkf
+from filterpy.kalman.UKF import UnscentedKalmanFilter as ukf
+from filterpy.kalman import MerweScaledSigmaPoints
 
 
 # Hyperparameters
@@ -84,7 +86,7 @@ def get_binned_rates_with_history(_X, Y, X_ax_info, bin_starts_t, bin_samples, n
     n_extra_y = np.sum(b_keep_y) - len(bin_stops_t)
     if n_extra_y > 0:
         b_keep_y[-n_extra_y] = False
-    _Y = Y[:4, b_keep_y].T
+    _Y = Y[:, b_keep_y].T
 
     _X_tapped = _X_tapped[:_Y.shape[0], :, :]
     bin_stops_t = bin_stops_t[:_Y.shape[0]]
@@ -96,7 +98,7 @@ _X_tapped, _Y, bin_stops_t = get_binned_rates_with_history(_X, Y, X_ax_info, bin
 
 # Training and test data for Kalman filter
 z = np.squeeze(_X_tapped).T
-x = _Y.T
+x = _Y[:, :4].T
 training_size = int(0.8 * np.size(x, 1))
 x_training = x[:, :training_size]
 z_training = z[:, :training_size]
@@ -115,25 +117,91 @@ for i in range(rng):
     z_in = z_test[:, i]
     x_predict[:, i] = np.reshape(mykf.update(z_in), (mykf.m, ))
     if i%50 == 0:
-        print('Step: ' + str(i) + ' out of ' + str(rng))
+        print('KF - Step: ' + str(i) + ' out of ' + str(rng))
 
-# Plotting the estimated states against the actual cursor positions
-plt.figure(1)
-plt.subplot(2,1,1)
-plt.plot(x_predict[0, :rng], label="x-predicted")
-plt.plot(x_test[0, :rng], label="x-actual")
+# Unscented Kalman Filter
+states = np.concatenate((_Y.T, z))
+training_size = int(0.8 * np.size(states, 1))
+x_training = states[:6, :training_size]
+z_training = states[6:, :training_size]
+x_test = states[:6, training_size:]
+z_test = states[6:, training_size:]
+dim_x = np.size(_Y, 1)
+dim_z = np.size(z, 0)
+
+# Initializing matrices
+x1 = x_training[:, :-1]
+x2 = x_training[:, 1:]
+temp1 = np.dot(x2, x1.T)
+temp2 = np.linalg.inv(np.dot(x1, x1.T))
+F = np.dot(temp1, temp2)
+# Q = ((X2 - F.X1).(X2 - FX1)^T) / (M-1)
+temp = x2 - np.dot(F, x1)
+Q = np.dot(temp, temp.T) / (dim_x - 1)
+# H = Z.X^T.(X.X^T)^-1
+temp1 = np.dot(z_training, x_training.T)
+temp2 = np.linalg.inv(np.dot(x_training, x_training.T))
+H = np.dot(temp1, temp2)
+# R = ((Z - H.X).(Z - H.X)^T) / M
+Z_HX = z_training - np.dot(H, x_training)
+temp = np.dot(Z_HX, Z_HX.T)
+R = np.divide(temp, dim_x)
+
+
+
+def transition(state, time_step):
+    output = np.zeros_like(state)
+    cursor = state[:6]
+    output[:6] = np.dot(F, cursor)
+    output[6:] = state[6:]
+    return output
+
+
+def observation (state):
+    return H @ state[:6]
+
+
+points = MerweScaledSigmaPoints(np.size(states, 0), alpha=1., beta=2., kappa=0)
+myukf = ukf(dim_x= dim_x + dim_z, dim_z=dim_z, dt=0.001, fx= transition, hx=observation, points=points)
+initial_state = states[:, 0]
+myukf.x = initial_state
+myukf.R = R
+myukf.Q = np.eye(dim_x + dim_z)
+
+# Estimation loop
+rng = np.size(states, 1) - training_size
+ukf_predict = np.zeros((dim_x + dim_z, rng))
+for i in range(training_size, np.size(states, 1)):
+    firing_rates = states[6:, i]
+    myukf.predict(dt=0.001)
+    myukf.update(firing_rates)
+    ukf_predict[:, i - training_size] = myukf.x
+    if (i - training_size) % 50 == 0:
+        print('UKF - Step: ' + str(i - training_size) + ' out of ' + str(rng))
+
+# Plotting the results
+plt.subplot(4,1,1)
+plt.plot(ukf_predict[0, :], label="UKF")
+plt.plot(x_predict[0, :], label="KF")
+plt.plot(states[0, -rng:], label="actual")
+plt.title("X-Position")
 plt.legend()
-plt.subplot(2,1,2)
-plt.plot(x_predict[1, :rng], label="y-predicted")
-plt.plot(x_test[1, :rng], label="y-actual")
+plt.subplot(4,1,2)
+plt.plot(ukf_predict[1, :], label="UKF")
+plt.plot(x_predict[1, :], label="KF")
+plt.plot(states[1, -rng:], label="actual")
+plt.title("Y-Position")
 plt.legend()
-plt.figure(2)
-plt.subplot(2,1,1)
-plt.plot(x_predict[2, :rng], label="velx-predicted")
-plt.plot(x_test[2, :rng], label="velx-actual")
+plt.subplot(4,1,3)
+plt.plot(ukf_predict[2, :], label="UKF")
+plt.plot(x_predict[2, :], label="KF")
+plt.plot(states[2, -rng:], label="actual")
+plt.title("X-Velocity")
 plt.legend()
-plt.subplot(2,1,2)
-plt.plot(x_predict[3, :rng], label="vely-predicted")
-plt.plot(x_test[3, :rng], label="vely-actual")
+plt.subplot(4,1,4)
+plt.plot(ukf_predict[3, :], label="UKF")
+plt.plot(x_predict[3, :], label="KF")
+plt.plot(states[3, -rng:], label="actual")
+plt.title("Y-Velocity")
 plt.legend()
 plt.show()

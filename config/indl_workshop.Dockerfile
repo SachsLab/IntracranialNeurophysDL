@@ -123,10 +123,8 @@ RUN git clone --depth=1 https://github.com/fastai/course-v3 /fastai/course-v3
 
 # Add workshop course material to image
 # Username and password are required until I make the repo public.
-ARG GHUSER
-ARG GHPASS
 RUN mkdir /indl/ && chmod -R a+rwx /indl
-RUN git clone https://${GHUSER}:${GHPASS}@github.com/SachsLab/IntracranialNeurophysDL.git /indl
+RUN git clone https://github.com/SachsLab/IntracranialNeurophysDL.git /indl
 
 # Link all of the notebooks into one common folder that will be easier to navigate.
 RUN rm -Rf /notebooks

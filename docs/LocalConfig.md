@@ -11,39 +11,66 @@ Follow the instructions for your operating system.
 
 ### Linux Ubuntu
 
-The provided instructions are intended for users working in the Ubuntu 18.04 desktop environment. We will 
-install nvidia-docker and run everything in a customized docker container.
+The provided instructions are intended for users working in the Ubuntu 18.04 desktop environment.
+The original instructions were to use nvidia-docker and they are preserved as method B.
+However, the new recommended method is to setup a local environment described in method A.
 
-1. Install nvidia driver version 410 following [these instructions](https://askubuntu.com/a/1077063).
+1. For either method, the first step is to install nvidia driver version 410.
+    * Follow [these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt), but stop after the line that says `Reboot. Check that GPUs are visible using the command: nvidia-smi
+`.
 
+#### Linux Method A: Local Config
+
+1. Identify the version of tensorflow you will be using and its requirements.
+    * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
+    * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.13.1 with python 3.6, CUDA 10.0, and cuDNN 7.4.
+1. If you have previously installed a newer version of CUDA or nvidia drivers then uninstall them.
+    * `sudo apt-get --purge remove "*cublas*" "cuda*" "libcud*"`
+    * `sudo apt-get --purge remove "*nvidia*"`
+    * Reboot
+1. Install CUDA.
+    * `sudo apt-get install linux-headers-$(uname -r)`
+    * Edit your `~/.profile` and add the following line:
+        * `export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64"`
+    * Log out of your Ubuntu session and log back in.
+    * Follow the instructions linked below, except skip the step to Install NVIDIA driver as they will get installed with cuda.
+        * [Link](https://www.tensorflow.org/install/gpu#install_cuda_with_apt).
+        * [Alternative Link](https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu/1077063#1077063)
+            * Note: Use `cuda-10-0` instead of `cuda-10-1`.
+        * TensorRT is optional.
+1. Make sure you have previously followed the BeforeTheWorkshop instructions.
+1. Activate your `indl` conda environment.
+1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-beta0`
+1. Test the environment
+        * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
+        * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
+1. `conda install hyperopt`
+1. `pip install --upgrade https://storage.googleapis.com/jax-wheels/cuda100/jaxlib-latest-cp36-none-linux_x86_64.whl`
+1. `pip install --upgrade jax`
+    
+
+#### Linux Method B: Using Docker
 1. Install `nvidia-docker` version 2.0
-
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
     Installation under the Version 2.0 header in the navigation bar on the right.
-    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0))) 
-
+    ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)))
 1. (Optional) Clean out old docker images
-
     If it has been a while since you previously configured a docker image for this workshop, then you may wish to
     cleanup your docker environment and start again.
-
     * List any running containers: `docker ps -a`
     * Kill any running containers: `docker stop $(docker ps -a -q)`
     * List docker images: `docker image ls`
     * Copy the IMAGE ID to clipboard
-    * Remove the image: `docker rmi <pasted_image_id>`
+    * Remove the image: `docker image rm <pasted_image_id>`
     * Cleanup: `docker system prune`
-
 1. Create the docker image
-
-    * Try this first: `TODO: put the built image on dockerhub so it can be pulled directly`
+    * If we have a custom built image (not yet): `TODO: put the built image on dockerhub so it can be pulled directly`
     * Else: Build the docker image 
         * If you haven't already, clone this repository locally or otherwise download the `indl_workshop.Dockerfile`.
-        * `docker build -f indl_workshop.Dockerfile --build-arg GHUSER=<user> --build-arg GHPASS=<pass> --build-arg PYTHON=python3.6 -t indl_workshop .`
+        * `docker build -f indl_workshop.Dockerfile --build-arg PYTHON=python3.6 -t indl_workshop .`
             * This takes a long time. And depending on your connection, it may stop half way and you'll have to try again.
             * The dockerfile is based off [`tensorflow/tensorflow:latest-gpu-py3-jupyter`](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/dockerfiles)
-            * TODO: Remove the GHUSER and GHPASS after this repo goes public. 
-            
     * Test the image 
         * `docker run --runtime=nvidia --rm indl_workshop nvidia-smi`
         The expected result should be similar to below:
@@ -61,6 +88,10 @@ install nvidia-docker and run everything in a customized docker container.
         * `docker run --runtime=nvidia --rm indl_workshop python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
             * Warnings about "Your CPU supports instructions..." can be safely ignored.
         * `docker run --runtime=nvidia --rm indl_workshop python -c "import torch; print(torch.rand(2,3).cuda())"`
+1. Run the docker container
+    * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/indl:/persist indl_workshop`
+        * This will run the container in the background.
+        * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 
 1. Download datasets
 
@@ -75,12 +106,6 @@ install nvidia-docker and run everything in a customized docker container.
       * DEPRECATED: `wget http://files.fast.ai/data/dogscats.zip -P $PWD/indl/data && unzip $PWD/indl/data/dogscats.zip -d $PWD/indl/data/`
         
     TODO: others. See [data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md)
-
-1. Run the docker container
-
-    * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/indl:/persist indl_workshop`
-        * This will run the container in the background.
-        * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 
 1. Connect to the jupyter notebook server
     * You will connect to the jupyter notebook server using your web browser. To get the URL, do one of the following:
@@ -125,7 +150,7 @@ or you can follow the shorter steps below.
     1. If your Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu==2.0.0-alpha0`
+    * `pip install tensorflow-gpu==2.0.0-beta0`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.

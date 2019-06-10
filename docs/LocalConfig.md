@@ -41,7 +41,7 @@ However, the new recommended method is to setup a local environment described in
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
-1. `conda install hyperopt`
+1. `pip install hyperopt`
 1. `pip install --upgrade https://storage.googleapis.com/jax-wheels/cuda100/jaxlib-latest-cp36-none-linux_x86_64.whl`
 1. `pip install --upgrade git+https://github.com/google/jax.git`
     

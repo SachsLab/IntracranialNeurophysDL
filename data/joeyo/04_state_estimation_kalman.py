@@ -7,7 +7,7 @@ from filterpy.kalman.UKF import UnscentedKalmanFilter as ukf
 from filterpy.kalman import MerweScaledSigmaPoints
 
 
-# Hyperparameters
+# Hyper-parameters
 SESS_IDX = 0          # Index of recording session we will use. 0:8
 BIN_DURATION = 0.250  # Width of window used to bin spikes, in seconds
 N_TAPS = 1            # Number of bins of history used in a sequence.
@@ -109,7 +109,7 @@ z_test = z[:, training_size:]
 x_predict = np.zeros_like(x_test)
 # Instantiating a Kalman filter object (Inputs are state and neural training data
 mykf = mkf(x=x_training, z=z_training)
-# just because it's slow to do the whole test data
+# in case it's slow to do the whole test data we could change the rng
 rng = int(np.size(x_test, 1))
 # Estimating a state with each of neural test data
 for i in range(rng):
@@ -120,6 +120,7 @@ for i in range(rng):
         print('KF - Step: ' + str(i) + ' out of ' + str(rng))
 
 # Unscented Kalman Filter
+time_step = 0.001
 states = np.concatenate((_Y.T, z))
 training_size = int(0.8 * np.size(states, 1))
 x_training = states[:6, :training_size]
@@ -132,27 +133,27 @@ dim_z = np.size(z, 0)
 # Initializing matrices
 x1 = x_training[:, :-1]
 x2 = x_training[:, 1:]
-temp1 = np.dot(x2, x1.T)
-temp2 = np.linalg.inv(np.dot(x1, x1.T))
-F = np.dot(temp1, temp2)
+temp1 = x2 @ x1.T
+temp2 = np.linalg.inv(x1 @ x1.T)
+F = temp1 @ temp2
 # Q = ((X2 - F.X1).(X2 - FX1)^T) / (M-1)
-temp = x2 - np.dot(F, x1)
-Q = np.dot(temp, temp.T) / (dim_x - 1)
+temp = x2 - (F @ x1)
+Q = (temp @ temp.T) / (dim_x - 1)
 # H = Z.X^T.(X.X^T)^-1
-temp1 = np.dot(z_training, x_training.T)
-temp2 = np.linalg.inv(np.dot(x_training, x_training.T))
-H = np.dot(temp1, temp2)
+temp1 = z_training @ x_training.T
+temp2 = np.linalg.inv(x_training @ x_training.T)
+H = temp1 @ temp2
 # R = ((Z - H.X).(Z - H.X)^T) / M
-Z_HX = z_training - np.dot(H, x_training)
-temp = np.dot(Z_HX, Z_HX.T)
+Z_HX = z_training - (H @ x_training)
+temp = Z_HX @ Z_HX.T
 R = np.divide(temp, dim_x)
 
 
 
-def transition(state, time_step):
+def transition(state, time_step=time_step):
     output = np.zeros_like(state)
     cursor = state[:6]
-    output[:6] = np.dot(F, cursor)
+    output[:6] = F @ cursor
     output[6:] = state[6:]
     return output
 
@@ -162,18 +163,19 @@ def observation (state):
 
 
 points = MerweScaledSigmaPoints(np.size(states, 0), alpha=1., beta=2., kappa=0)
-myukf = ukf(dim_x= dim_x + dim_z, dim_z=dim_z, dt=0.001, fx= transition, hx=observation, points=points)
+myukf = ukf(dim_x= dim_x + dim_z, dim_z=dim_z, dt=time_step, fx= transition, hx=observation, points=points)
 initial_state = states[:, 0]
 myukf.x = initial_state
 myukf.R = R
 myukf.Q = np.eye(dim_x + dim_z)
+myukf.Q[:np.size(Q, 0), :np.size(Q, 1)] = Q
 
 # Estimation loop
 rng = np.size(states, 1) - training_size
 ukf_predict = np.zeros((dim_x + dim_z, rng))
 for i in range(training_size, np.size(states, 1)):
     firing_rates = states[6:, i]
-    myukf.predict(dt=0.001)
+    myukf.predict(dt=time_step)
     myukf.update(firing_rates)
     ukf_predict[:, i - training_size] = myukf.x
     if (i - training_size) % 50 == 0:

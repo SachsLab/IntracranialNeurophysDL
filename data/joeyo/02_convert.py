@@ -107,8 +107,8 @@ def get_broadband(filename):
 
 
 if __name__ == "__main__":
-    ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
-    # ROW_RANGE = [34, 35]  # From Ahmadi et al.
+    # ROW_RANGE = [13, 19]  # Use [0, np.inf] to process all rows.
+    ROW_RANGE = [34, 35]  # Same as Ahmadi et al.
     if Path.cwd().stem == 'joeyo':
         import os
         os.chdir('../..')

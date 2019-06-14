@@ -132,10 +132,12 @@ def FreeEvolveGRU(n_hidden, evolve_steps=1, keep_rate=1.0):
     x0 = np.zeros((evolve_steps, 1))
 
     def init_fun(rng, input_shape):
-        output_shape = input_shape[:-1] + (n_hidden,)
+        output_shape = (evolve_steps, n_hidden)
         rng, keys = utils.keygen(rng, 1)
         gen_params = gru_params(next(keys), n_hidden, 1)
-        # TODO: Modify params so x weights are all 0.
+        # Modify params so x weights are all 0. Not necessary because input is always 0.
+        # gen_params['wRUHX'][:, -1] = 0
+        # gen_params['wCHX'][:, -1] = 0
         return output_shape, gen_params
 
     def apply_fun(params, x_t, rng=None):
@@ -149,8 +151,7 @@ def FreeEvolveGRU(n_hidden, evolve_steps=1, keep_rate=1.0):
 def SampleDistrib(var_min):
 
     def init_fun(rng, input_shape):
-        output_shape = input_shape
-        output_shape[0] = output_shape[0] / 2
+        output_shape = (int(input_shape[0] / 2), ) + input_shape[1:]
         return output_shape, None
 
     def apply_fun(params, inputs, rng=None):
@@ -185,7 +186,7 @@ def NormedLinear(output_size, ifactor=1.0):
         w = params['w']
         w_row_norms = np.sqrt(np.sum(w ** 2, axis=1, keepdims=True))
         w = w / w_row_norms
-        return np.dot(w, inputs)
+        return np.dot(inputs, w.T)
 
     return init_fun, apply_fun
 
@@ -223,7 +224,7 @@ def LFADSDecoderModel(var_min, keep_rate, n_hidden, n_timesteps, n_factors, n_ne
     )
 
 
-def lfads_onestep(params, rng, encdec, data):
+def lfads_onestep(params, rng, data):
     rng, keys = utils.keygen(rng, 2)
     enc_params, dec_params = params
     latent_vars = encdec[0](enc_params, data, rng=next(keys))
@@ -232,10 +233,10 @@ def lfads_onestep(params, rng, encdec, data):
     return {'ic_post_mean': ic_post_mean, 'ic_post_logvar': ic_post_logvar, 'neuron_log_rates': neuron_log_rates}
 
 
-lfads_batch = vmap(lfads_onestep, in_axes=(None, 0, None, 0))
+lfads_batch = vmap(lfads_onestep, in_axes=(None, 0, 0))
 
 
-def loss_fn(params, data, rng, batch_size, ic_prior, var_min, kl_scale, l2reg, encdec):
+def loss_fn(params, data, rng, batch_size, ic_prior, var_min, kl_scale, l2reg):
     """
 
     :param params:
@@ -250,8 +251,8 @@ def loss_fn(params, data, rng, batch_size, ic_prior, var_min, kl_scale, l2reg, e
     :return:
     """
 
-    rng, keys = utils.keygen(rng, batch_size)
-    result = lfads_batch(params, keys, encdec, data)
+    keys = random.split(rng, batch_size)
+    result = lfads_batch(params, keys, data)
 
     # Get KL Loss
 
@@ -289,8 +290,7 @@ if __name__ == '__main__':
 
     # LFADS architecture
     ENC_DIM = 128  # encoder GRU hidden state size
-    IC_DIM = 32  # Number of variables in 'initial conditions' AKA bottleneck
-    GEN_DIM = 128  # generator dim, should be large enough to generate dynamics
+    IC_DIM = 32  # Number of variables in 'initial conditions' AKA bottleneck. Also initial hidden state of generator.
     FACTORS_DIM = 32  # factors dim, should be large enough to capture most variance of dynamics
 
     # Numerical stability
@@ -333,14 +333,14 @@ if __name__ == '__main__':
 
     # Get the model #
     encoder_init, encode = LFADSEncoderModel(P_DROPOUT, ENC_DIM, IC_DIM)
-    decoder_init, decode = LFADSDecoderModel(VAR_MIN, P_DROPOUT, GEN_DIM, n_timesteps, FACTORS_DIM, n_neurons)
+    decoder_init, decode = LFADSDecoderModel(VAR_MIN, P_DROPOUT, IC_DIM, n_timesteps, FACTORS_DIM, n_neurons)
     encdec = encode, decode
 
     # Init the model
     ic_prior = {'mean': 0.0 * np.ones((IC_DIM,)), 'logvar': np.log(IC_PRIOR_VAR) * np.ones((IC_DIM,))}
     rng, keys = utils.keygen(rng, 2)
-    latent_shape, init_encoder_params = encoder_init(next(keys), (BATCH_SIZE, n_timesteps, n_neurons))
-    decoded_shape, init_decoder_params = decoder_init(next(keys), (BATCH_SIZE, 0))
+    latent_shape, init_encoder_params = encoder_init(next(keys), (n_timesteps, n_neurons))
+    decoded_shape, init_decoder_params = decoder_init(next(keys), latent_shape)
     init_params = init_encoder_params, init_decoder_params
 
     # Optimizer #
@@ -371,7 +371,7 @@ if __name__ == '__main__':
             batch_data = batch_data.astype(np.float32)
 
             params = get_params(__opt_state)
-            grads = grad(loss_fn)(params, batch_data, next(keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG, encdec)
+            grads = grad(loss_fn)(params, batch_data, next(keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG)
             clipped_grads = optimizers.clip_grads(grads, MAX_GRAD_NORM)
 
             return opt_update(batch_idx, clipped_grads, __opt_state)
@@ -383,11 +383,9 @@ if __name__ == '__main__':
         tic = time.time()
 
         # Run one full epoch
-        rng, key = random.split(random.fold_in(rng, epoch), 1)
-        opt_state = run_epoch(key, opt_state)
+        rng = random.split(random.fold_in(rng, epoch), 1)[0]
+        opt_state = run_epoch(rng, opt_state)
 
         # test_elbo, sampled_images = evaluate(opt_state, test_images)
-        # print("{: 3d} {} ({:.3f} sec)".format(epoch, test_elbo, time.time() - tic))
+        print("{: 3d} ({:.3f} sec)".format(epoch, time.time() - tic))
         # plt.imsave(imfile.format(epoch), sampled_images, cmap=plt.cm.gray)
-
-

@@ -3,6 +3,9 @@
 Before following the instructions in this document, you should follow the instructions in
 the [BeforeTheWorkshop document](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/BeforeTheWorkshop.md).
 
+Note that some of the instructions below include directions to download test data and run other test code.
+This is no longer strictly necessary as we have our own tests now, but we left in the instructions for the extra curious types.
+
 Follow the instructions for your operating system.
 
 * [Linux Ubuntu](#linux-ubuntu)
@@ -14,6 +17,7 @@ Follow the instructions for your operating system.
 The provided instructions are intended for users working in the Ubuntu 18.04 desktop environment.
 The original instructions were to use nvidia-docker and they are preserved as method B.
 However, the new recommended method is to setup a local environment described in method A.
+Method A is easier to follow and easier to use after-the-fact, though its setup is much more likely to fail.
 
 #### Linux Method A: Local Config
 

@@ -55,13 +55,13 @@ this may be a viable workflow for some.
 
 ## Data Sources
 
-We have curated several datasets specifically for this workshop. Please see the
-[data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md) for their descriptions.
+We have curated two datasets specifically for this workshop. Please see the
+README in a [data subfolder](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/) for their descriptions.
 
 Subsets of these datasets will be downloaded on demand as required by each lesson.
 
 Larger datasets are not required but you may download them following the instructions in the data directory
-for your own exploration outside the workshop. The data preprocessing and conversion scripts use [NeuroPype]().
+for your own exploration outside the workshop. The data preprocessing and conversion scripts use [NeuroPype](https://www.neuropype.io/).
 NeuroPype is free for academics but the publicly available academic version is currently too old (as of June 2019).
 
 # Lesson Plan

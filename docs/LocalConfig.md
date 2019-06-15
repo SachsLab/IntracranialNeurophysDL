@@ -195,18 +195,26 @@ Ensure you have completed all the <a href="https://github.com/SachsLab/Intracran
     * `conda activate indl`
 1. Install TensorFlow:
     * `pip install --upgrade pip`
-    * `pip install tensorflow`
+    * `pip install tensorflow==2.0.0-beta1`
 1. Verify installation:
-    * `python -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"`
+    * `python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"`
     * You should get something like this `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
         * This is normal, because TensorFlow is built without CPU extensions (such as SSE4.1, SSE4.2, AVX, AVX2, FMA, etc.)
         * Until there is GPU support for MacOS, optimizing TensorFlow can be done via <a href="https://www.tensorflow.org/install/source">building from source</a>. Use at your own risk.
+1. Install additional packages
+    * `pip install hyperopt`
+    * `pip install --upgrade jax jaxlib`
+        * Alternatively, you may build from <a href="https://github.com/google/jax#building-jax-from-source">source</a> for stability and GPU support
 1. We will be saving the below materials in the following working directory: `~/Developer/indl`
     * `mkdir ${HOME}/Developer && mkdir ${HOME}/Developer/indl`
-1. Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials:
-    * `conda activate indl`
+1. For the workshop and your other DL projects, you may set this working directory as your workspace path in your IDE
+    * `git clone https://github.com/SachsLab/IntracranialNeurophysDL.git ${HOME}/Developer/indl/IntracranialNeurophysDL`
+
+The following sections contain supplementary material that will not be covered in the workshop.
+
+1. Install Pytorch so you can follow other Pytorch tutorials:
     * `conda install pytorch torchvision -c pytorch`
-1. Download some tutorial material:
+1. Set up fastai and TensorFlow docs:
     * Clone and install fastai:
         * `git clone --depth=1 https://github.com/fastai/fastai ${HOME}/Developer/indl/fastai`
         * `pip install ${HOME}/Developer/indl/fastai torchtext`
@@ -219,6 +227,3 @@ Ensure you have completed all the <a href="https://github.com/SachsLab/Intracran
         * `git clone https://github.com/fastai/course-v3.git ${HOME}/Developer/indl/fastai_v3`
     * Clone TensorFlow docs:
         * `git clone --depth=1 https://github.com/tensorflow/docs.git ${HOME}/Developer/indl/tensorflow`
-
-1. Download datasets (DEPRECATED)
-    * `wget http://files.fast.ai/data/dogscats.zip -P ~/data/ && unzip ~/data/dogscats.zip -d ~/data/`

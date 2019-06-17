@@ -19,8 +19,15 @@ def load_dat_with_vel_accel(datadir, sess_idx, x_chunk='mu_spiketimes', trial_du
                                                                      trial_dur))
     targ_onset_times = targ_onset_times[b_short_trials]
 
-    # Slice Y to only keep required behaviour data (cursor position)
+    # Identify channels with required behaviour data (cursor position)
     b_keep_y_chans = onp.in1d(Y_ax_info['channel_names'], BEHAV_CHANS)
+
+    # Save target vectors per trial
+    first_pos = Y[b_keep_y_chans][:, b_targ_onset][:, b_short_trials]
+    targ_pos = Y[targ_ch_ix][:, b_targ_onset][:, b_short_trials]
+    targ_vec = targ_pos - first_pos
+
+    # Slice Y to only keep required behaviour data (cursor position)
     Y = Y[b_keep_y_chans, :]
     Y_ax_info['channel_names'] = [_ for _ in Y_ax_info['channel_names'] if _ in BEHAV_CHANS]
 
@@ -31,7 +38,7 @@ def load_dat_with_vel_accel(datadir, sess_idx, x_chunk='mu_spiketimes', trial_du
     Y = onp.concatenate((Y, vel, accel), axis=0)
     Y_ax_info['channel_names'] += ['VelX', 'VelY', 'AccX', 'AccY']
 
-    return X, Y, X_ax_info, Y_ax_info, targ_onset_times
+    return X, Y, X_ax_info, Y_ax_info, targ_onset_times, targ_vec
 
 
 def bin_and_segment_spike_times(X, X_ax_info, targ_onset_times,

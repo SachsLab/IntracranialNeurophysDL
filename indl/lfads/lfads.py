@@ -54,6 +54,7 @@ def run_gru(params, x_t, h0=None, keep_rate=1.0, rng=None):
     for x in x_t:
         h = gru(params, h, x)
         # Do dropout on hidden state
+        # TODO: Only do dropout during training.
         keep = random.bernoulli(next(keys), keep_rate, h.shape)
         h = np.where(keep, h / keep_rate, 0)
         h_t.append(h)
@@ -247,11 +248,12 @@ def loss_fn(params, data, rng, batch_size, ic_prior, var_min, kl_scale, l2reg):
     :param var_min:
     :param kl_scale:
     :param l2reg:
-    :param encdec: tuple of encoder_fn, decoder_fn
     :return:
     """
 
     keys = random.split(rng, batch_size)
+
+    # Run the data through the model!
     result = lfads_batch(params, keys, data)
 
     # Get KL Loss
@@ -269,6 +271,9 @@ def loss_fn(params, data, rng, batch_size, ic_prior, var_min, kl_scale, l2reg):
     total_loss = -log_p_xgz + kl_loss_g0 + l2_loss
 
     return total_loss
+
+
+loss_fn = jit(loss_fn, static_argnums=(3, 4, 7))
 
 
 if __name__ == '__main__':
@@ -323,7 +328,7 @@ if __name__ == '__main__':
 
     datadir = Path.cwd() / 'data' / 'joeyo'
     rng = random.PRNGKey(onp.random.randint(0, MAX_SEED_INT))
-    X, Y, X_ax_info, Y_ax_info, targ_times = load_dat_with_vel_accel(datadir, SESS_IDX, trial_dur=MAX_TRIAL_DUR)
+    X, Y, X_ax_info, Y_ax_info, targ_times, targ_vecs = load_dat_with_vel_accel(datadir, SESS_IDX, trial_dur=MAX_TRIAL_DUR)
     trial_X, trial_tvec, true_bin_dur = bin_and_segment_spike_times(X, X_ax_info, targ_times,
                                                                     nearest_bin_dur=BIN_DURATION,
                                                                     trial_dur=MAX_TRIAL_DUR)
@@ -351,6 +356,7 @@ if __name__ == '__main__':
         return np.where(batch_idx > kl_warmup_end, kl_max, _warmup)
 
     decay_fun = optimizers.exponential_decay(STEP_SIZE, DECAY_STEPS, DECAY_FACTOR)
+    # TODO: Check exponential_decay when using epochs / batches.
 
     opt_init, opt_update, get_params = optimizers.adam(step_size=decay_fun,
                                                        b1=0.9,
@@ -359,19 +365,22 @@ if __name__ == '__main__':
     opt_state = opt_init(init_params)
 
     @jit
-    def run_epoch(rng, _opt_state):
-        _rng, keys = utils.keygen(rng, num_batches)
+    def run_epoch(rng, _opt_state, epoch_idx):
+        _rng, dat_keys = utils.keygen(rng, 1)
+        _rng, batch_keys = utils.keygen(_rng, num_batches)
+
+        # Randomize epoch data.
+        epoch_data = random.shuffle(next(dat_keys), X_train, axis=0)
 
         def update(batch_idx, __opt_state):
             """Update func for gradients, includes gradient clipping."""
-            kl_warmup = kl_warmup_fun(batch_idx)
+            kl_warmup = kl_warmup_fun(epoch_idx * num_batches + batch_idx)
 
-            batch_idx = batch_idx % num_batches
-            batch_data = lax.dynamic_slice_in_dim(X_train, batch_idx * BATCH_SIZE, BATCH_SIZE, axis=0)
+            batch_data = lax.dynamic_slice_in_dim(epoch_data, batch_idx * BATCH_SIZE, BATCH_SIZE, axis=0)
             batch_data = batch_data.astype(np.float32)
 
             params = get_params(__opt_state)
-            grads = grad(loss_fn)(params, batch_data, next(keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG)
+            grads = grad(loss_fn)(params, batch_data, next(batch_keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG)
             clipped_grads = optimizers.clip_grads(grads, MAX_GRAD_NORM)
 
             return opt_update(batch_idx, clipped_grads, __opt_state)
@@ -379,13 +388,48 @@ if __name__ == '__main__':
         return lax.fori_loop(0, num_batches, update, _opt_state)
 
     # Equivalent to optimize.py: for oidx in range(num_opt_loops)
+    training_loss = []
+    validation_loss = []
     for epoch in range(EPOCHS):
         tic = time.time()
 
         # Run one full epoch
         rng = random.split(random.fold_in(rng, epoch), 1)[0]
-        opt_state = run_epoch(rng, opt_state)
+        opt_state = run_epoch(rng, opt_state, epoch)
 
-        # test_elbo, sampled_images = evaluate(opt_state, test_images)
-        print("{: 3d} ({:.3f} sec)".format(epoch, time.time() - tic))
-        # plt.imsave(imfile.format(epoch), sampled_images, cmap=plt.cm.gray)
+        # Calculate losses
+        # First get params we need
+        params = get_params(opt_state)
+        kl_warmup = kl_warmup_fun(epoch * num_batches)
+
+        # Run loss_fn on all training data
+        rng, train_keys = utils.keygen(rng, num_batches)
+        epoch_train_loss = []
+        for batch_ix in range(num_batches):
+            eval_train_dat = lax.dynamic_slice_in_dim(X_train, batch_ix * BATCH_SIZE, BATCH_SIZE, axis=0)
+            eval_train_dat = eval_train_dat.astype(np.float32)
+            _train_loss = loss_fn(params, eval_train_dat, next(train_keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG)
+            epoch_train_loss.append(_train_loss)
+        epoch_train_loss = onp.mean(epoch_train_loss)
+        training_loss.append(epoch_train_loss)
+
+        # Run loss_fn on validation data.
+        n_valid_batches = int(X_valid.shape[0] * EPOCHS / BATCH_SIZE)
+        rng, valid_keys = utils.keygen(rng, n_valid_batches)
+        epoch_valid_loss = []
+        for batch_ix in range(n_valid_batches):
+            eval_val_dat = lax.dynamic_slice_in_dim(X_valid, batch_ix * BATCH_SIZE, BATCH_SIZE, axis=0)
+            eval_val_dat = eval_val_dat.astype(np.float32)
+            _valid_loss = loss_fn(params, eval_val_dat, next(valid_keys), BATCH_SIZE, ic_prior, VAR_MIN, kl_warmup, L2_REG)
+            epoch_valid_loss.append(_valid_loss)
+        epoch_valid_loss = onp.mean(epoch_valid_loss)
+        validation_loss.append(epoch_valid_loss)
+
+        s = "Epoch {}/{} in {:0.2f} sec. Training loss {:0.0f}, Eval loss {:0.0f}"
+        print(s.format(epoch + 1, EPOCHS, time.time() - tic, epoch_train_loss, epoch_valid_loss))
+
+    import matplotlib.pyplot as plt
+    x_vec = onp.arange(EPOCHS)
+    plt.plot(x_vec, onp.array(training_loss))
+    plt.plot(x_vec, onp.array(validation_loss))
+    plt.show()

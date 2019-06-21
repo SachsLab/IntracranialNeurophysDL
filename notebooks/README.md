@@ -12,3 +12,5 @@
 | 5    | 05_02_LSTM_and_GRU          | | [Link](https://colab.research.google.com/github/SachsLab/IntracranialNeurophysDL/blob/master/notebooks/05_02_LSTM_and_GRU.ipynb)|
 | 6    | 06_01_LFADS                 | OK| [Link](https://colab.research.google.com/github/SachsLab/IntracranialNeurophysDL/blob/master/notebooks/06_01_LFADS.ipynb)|
 | 6    | 06_02_fixed_point_analysis                 | Incomplete. | [Link](https://colab.research.google.com/github/SachsLab/IntracranialNeurophysDL/blob/master/notebooks/06_02_fixed_point_analysis.ipynb)|
+| 7    | 07_Main_Exercise                 | Incomplete. | [Link](https://colab.research.google.com/github/SachsLab/IntracranialNeurophysDL/blob/master/notebooks/07_Main_Exercise.ipynb)|
+| 7    | 07_Main_Solution                 | Incomplete. | [Link](https://colab.research.google.com/github/SachsLab/IntracranialNeurophysDL/blob/master/notebooks/07_Main_Solution.ipynb)|

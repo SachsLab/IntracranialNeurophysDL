@@ -27,15 +27,16 @@
 * Optional: [~~Sign up for Neuropype academic edition.~~](https://www.neuropype.io/academic-edition)
     * Neuropype is only used in a small example in the workshop itself, and if you wish to reuse
     my code to preprocess downloaded data. The provided data are already preprocessed so it is not necessary.
-    * NeuroPype academic edition is due for an update and the current public version
-    does not work with the workshop.
+    * NeuroPype academic edition works in Windows only.
+    * I need to do further testing to get this working.
     
 ## Preparing a Python environment
 
 Whether you decide to do _Deep Learning_ locally or remotely (more on that later),
-it is common to want to do at least some _data preprocessing_ locally,
-so you will need Python data science tools. Don't worry if you fail to complete
-this next part as we will go over it during the first workshop session (see slides/June2019/Part1).
+it is common to want to do at least some _data preprocessing_ locally. Here we provide instructions on
+how to configure your computer with Python-based data science tools. While this configuration is not strictly
+required for the workshop, it is highly recommended that you attempt to configure your system so that you
+can ask for support at the workshop should you run into any trouble during configuration.
 
 * Mac users [get homebrew](https://brew.sh/).
 * Download and install Git
@@ -65,20 +66,22 @@ this next part as we will go over it during the first workshop session (see slid
     
 ## Decision: Local Deep Learning or in Cloud with Google Colaboratory? 
 
-Decide if you are going to do deep learning on your local computer, or remotely using Colab.
+Decide if you are going to do deep learning on your local computer, or remotely using Google Colab.
 Doing it on your local computer has some advantages (easier data management),
 but the main disadvantage is that you need a decent nVidia GPU.
 
 ### Local Configuration 
 
-If you decide to do a local configuration, either now for the workshop on your laptop with a
-good nVidia GPU, or later on a workstation, then please follow the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md)
-document. 
+If you decide to do a local configuration, either on your laptop for the workshop or on a workstation, then please
+follow the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/LocalConfig.md) document. 
 
 After you've completed the local config for deep learning, try running the jupyter-notebook
-server and running the notebooks/01_00_tensorflow_test.ipynb notebook. Open a terminal/command prompt,
-activate the indl environment, change to the IntracranialNeurophysDL directory, and run `jupyter notebook`.
-In the newly launched browser, click on the notebooks folder then the notebook to launch. 
+server and running the notebooks/01_00_tensorflow_test.ipynb notebook.
+* Open an Anacond Prompt / terminal / command prompt
+* Activate the indl environment
+* Change to the IntracranialNeurophysDL directory
+* run `jupyter notebook`.
+* In the newly launched browser, click on the notebooks folder then the notebook to launch. 
 
 ### Google Colaboratory
 We suggest familiarizing yourself with colab by going over the [Welcome Notebook](https://colab.research.google.com/notebooks/welcome.ipynb) 

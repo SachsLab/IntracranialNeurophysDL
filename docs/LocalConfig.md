@@ -17,14 +17,15 @@ Follow the instructions for your operating system.
 The provided instructions are intended for users working in the Ubuntu 18.04 desktop environment.
 The original instructions were to use nvidia-docker and they are preserved as method B.
 However, the new recommended method is to setup a local environment described in method A.
-Method A is easier to follow and easier to use after-the-fact, though its setup is much more likely to fail.
+Method A has simpler instructions and is easier to use after-the-fact, though its setup is much more likely to fail.
 
 #### Linux Method A: Local Config
 
 1. Identify the version of tensorflow you will be using and its requirements.
     * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.13.1 with python 3.6, CUDA 10.0, and cuDNN 7.4.
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.7, CUDA 10.0, and cuDNN 7.4.
+         * Even though we will be using tensorflow 2.0, its requirements are the same as the latest tensorflow 1.x.
 1. If you have previously installed a newer version of CUDA or nvidia drivers then uninstall them.
     * `sudo apt-get --purge remove "*cublas*" "cuda*" "libcud*"`
     * `sudo apt-get --purge remove "*nvidia*"`
@@ -41,7 +42,7 @@ Method A is easier to follow and easier to use after-the-fact, though its setup 
         * TensorRT is optional.
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
 1. Activate your `indl` conda environment.
-1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-beta0`
+1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-beta1`
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -118,14 +119,15 @@ Method A is easier to follow and easier to use after-the-fact, though its setup 
 ### Windows 10
 
 These instructions are provided and tested for Windows 10 but should work with previous versions, assuming users download
-the proper software versions. Unlike Linux, Windows can't forward GPU drivers to a docker container so
+the appropriate versions of the required software. Unlike Linux, Windows can't forward GPU drivers to a docker container so
 all packages will be installed on the local machine.
 
 1. Identify the version of tensorflow you will be using and its requirements.
     * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
     (Even though the table is for linux, the version dependencies are true in Windows too)
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.13.1 with python 3.6 and CUDA 10.0
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.6 and CUDA 10.0
+        * Even though we will be using tensorflow 2.0, its requirements are the same as the latest tensorflow 1.x.
 
 1. Install a version of nVidia drivers with version number >= to the minimum required.  
     * Go to [this table](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) and
@@ -151,7 +153,7 @@ or you can follow the shorter steps below.
     1. If your Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu==2.0.0-beta0`
+    * `pip install tensorflow-gpu==2.0.0-beta1`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.

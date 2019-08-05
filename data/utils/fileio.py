@@ -149,6 +149,35 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
     return X, Y, ax_info
 
 
+def load_macaque_pfc(data_path, sess_id, feature_set='full', zscore=False):
+    """
+    Load a file from the KJM faces_basic dataset.
+    :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
+    :param sess_id: Subject ID (2-character string)
+    :param feature_set: 'full' or 'bp' for band-power
+    :return: X, Y, ax_info
+    """
+    test_file = data_path / 'converted' / (sess_id + '_segmented.h5')
+    chunks = from_neuropype_h5(test_file)
+    chunk_names = [_[0] for _ in chunks]
+    chunk = chunks[chunk_names.index('spikerates')][1]
+    ax_types = [_['type'] for _ in chunk['axes']]
+    instance_axis = chunk['axes'][ax_types.index('instance')]
+    X = chunk['data']
+    Y = instance_axis['data']['sacClass'].values.reshape(-1, 1)
+    ax_info = {'instance_data': instance_axis['data'],
+               'fs': chunk['axes'][ax_types.index('time')]['nominal_rate'],
+               'timestamps': chunk['axes'][ax_types.index('time')]['times'],
+               'channel_names': chunk['axes'][ax_types.index('space')]['names'],
+               'channel_locs': chunk['axes'][ax_types.index('space')]['positions']
+               }
+
+    if zscore:
+        X = (X - np.mean(X, axis=1, keepdims=True)) / np.std(X, axis=1, keepdims=True)
+
+    return X, Y, ax_info
+
+
 if __name__ == '__main__':
     if Path.cwd().stem == 'utils':
         import os

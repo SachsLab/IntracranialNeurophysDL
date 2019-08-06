@@ -10,3 +10,17 @@ def enable_plotly_in_cell(in_colab=True):
               <script src="/static/components/requirejs/require.js"></script>
         '''))
         init_notebook_mode(connected=False)
+
+
+def reset_keras(model=None):
+    import gc
+    import tensorflow.keras.backend as K
+    # Reset Keras Session
+    K.clear_session()
+
+    try:
+        del model
+    except:
+        pass
+
+    print(gc.collect())

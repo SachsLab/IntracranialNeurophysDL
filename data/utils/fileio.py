@@ -149,53 +149,12 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
     return X, Y, ax_info
 
 
-def load_macaque_pfc(data_path, sess_id, x_chunk='spikerates', zscore=False):
-    """
-    Load a file from the KJM faces_basic dataset.
-    :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
-    :param sess_id: Subject ID (2-character string)
-    :param x_chunk: Type of data to return. Options are 'analogsignals' (i.e. LFPs), 'spikerates', 'spiketrains'
-    :param zscore: Set True to center and standardize X data per-channel.
-    :return: X, Y, ax_info
-    """
-    test_file = data_path / 'converted' / (sess_id + '_segmented.h5')
-    chunks = from_neuropype_h5(test_file)
-    chunk_names = [_[0] for _ in chunks]
-    chunk = chunks[chunk_names.index(x_chunk)][1]
-    ax_types = [_['type'] for _ in chunk['axes']]
-    inst_ix, time_ix, space_ix = (ax_types.index(_) for _ in ('instance', 'time', 'space'))
-    instance_axis = chunk['axes'][inst_ix]
-    X = chunk['data']
-    Y = instance_axis['data']['sacClass'].values.reshape(-1, 1)
-    ax_info = {'instance_data': instance_axis['data'],
-               'fs': chunk['axes'][time_ix]['nominal_rate'],
-               'timestamps': chunk['axes'][time_ix]['times'],
-               'channel_names': chunk['axes'][space_ix]['names'],
-               'channel_locs': chunk['axes'][space_ix]['positions']
-               }
-
-    if time_ix > space_ix:
-        # LFPs were stored with axes order reversed.
-        X = np.transpose(X, (0, 2, 1))
-
-    if zscore:
-        if x_chunk == 'spiketrains':
-            raise ValueError("Cannot z-score boolean spiketrains.")
-        # Centre and standardize across all trials*samples
-        tmp = np.reshape(X, (X.shape[0] * X.shape[1], X.shape[2]))
-        X = (X - np.mean(tmp, axis=0)) / np.std(tmp, axis=0)
-
-    return X, Y, ax_info
-
-
 if __name__ == '__main__':
     if Path.cwd().stem == 'utils':
         import os
         os.chdir('../..')
     # datadir = Path.cwd() / 'data' / 'kjm_ecog'
     # res_tuple = load_faces_houses(datadir, 'mv')
-    # datadir = Path.cwd() / 'data' / 'joeyo'
-    # res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
-    datadir = Path.cwd() / 'data' / 'monkey_pfc'
-    res_tuple = load_macaque_pfc(datadir, 'sra3_1_m_074_0001', x_chunk='spikerates', zscore=True)
+    datadir = Path.cwd() / 'data' / 'joeyo'
+    res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
     print(res_tuple[2])  # X_ax_info

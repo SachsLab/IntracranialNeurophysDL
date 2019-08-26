@@ -12,7 +12,7 @@ def _recurse_get_dict_from_group(grp):
     return result
 
 
-def from_neuropype_h5(filename):
+def from_neuropype_h5(filename, chunk_names=None):
     import h5py
     from pandas import DataFrame
     f = h5py.File(filename, 'r')
@@ -20,8 +20,11 @@ def from_neuropype_h5(filename):
     chunks = []
     if 'chunks' in f.keys():
         chunks_group = f['chunks']
-        for ch_key in chunks_group.keys():
+        ch_keys = list(chunks_group.keys()) if chunk_names is None\
+            else [_ for _ in chunks_group.keys() if _ in chunk_names]
+        for ch_key in ch_keys:
             chunk_group = chunks_group.get(ch_key)
+
             # Process data
             block_group = chunk_group.get('block')
             data_ = block_group.get('data')

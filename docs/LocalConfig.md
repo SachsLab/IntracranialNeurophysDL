@@ -24,7 +24,7 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
 1. Identify the version of tensorflow you will be using and its requirements.
     * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.7, CUDA 10.0, and cuDNN 7.4.
+     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.7, CUDA 10.0, and cuDNN 7.6.
          * Even though we will be using tensorflow 2.0, its requirements are the same as the latest tensorflow 1.x.
 1. If you have previously installed a newer version of CUDA or nvidia drivers then uninstall them.
     * `sudo apt-get --purge remove "*cublas*" "cuda*" "libcud*"`
@@ -42,7 +42,7 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
         * TensorRT is optional.
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
 1. Activate your `indl` conda environment.
-1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-beta1`
+1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-rc0`
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -153,7 +153,7 @@ or you can follow the shorter steps below.
     1. If your Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu==2.0.0-beta1`
+    * `pip install tensorflow-gpu==2.0.0-rc0`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -197,7 +197,7 @@ Ensure you have completed all the <a href="https://github.com/SachsLab/Intracran
     * `conda activate indl`
 1. Install TensorFlow:
     * `pip install --upgrade pip`
-    * `pip install tensorflow==2.0.0-beta1`
+    * `pip install tensorflow==2.0.0-rc0`
 1. Verify installation:
     * `python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"`
     * You should get something like this `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA

@@ -39,9 +39,9 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
         * [Follow these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt).
         * [Alternative Link](https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu/1077063#1077063)
             * Note: Use `cuda-10-0` instead of `cuda-10-1`.
-        * TensorRT is optional.
+        * TensorRT is optional. It is a platform for high-perf inference on previously trained models.
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
-1. Activate your `indl` conda environment.
+1. Activate your `indl` conda environment. (`source activate indl`)
 1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-rc0`
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
@@ -118,9 +118,9 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
 
 ### Windows 10
 
-These instructions are provided and tested for Windows 10 but should work with previous versions, assuming users download
-the appropriate versions of the required software. Unlike Linux, Windows can't forward GPU drivers to a docker container so
-all packages will be installed on the local machine.
+These instructions are provided and tested for Windows 10 but should work with previous versions, assuming users
+download the appropriate versions of the required software. Unlike Linux, Windows can't forward GPU drivers to a docker
+container so all packages will be installed on the local machine.
 
 1. Identify the version of tensorflow you will be using and its requirements.
     * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).

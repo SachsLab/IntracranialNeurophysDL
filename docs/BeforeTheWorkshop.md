@@ -5,12 +5,12 @@
     
 ## Signing up for accounts
 
-* Create a GitHub account if you don't already have one.
+* Create a [GitHub](https://github.com/) account if you don't already have one.
 * Setup a Google Colab account.
-    * Create a google (e.g. gmail) account if you don't already have one.
-    * Navigate to https://colab.research.google.com/github/ .
-    * Click on "Include private repos" to authorize google colab.
-        * This might not be necessary once the repos go public. Let me know if you skipped this step!
+    * It works with any google account. Create a google (e.g. gmail) account if you don't already have one.
+    * Authorize it to to access your github account.
+        * Navigate to https://colab.research.google.com/github/ .
+        * Optional: Click on "Include private repos" to authorize google colab.
 * Configure your computer to download from kaggle
     * Get a kaggle account: https://www.kaggle.com/
     * Download your Kaggle API key. [Instructions](https://github.com/Kaggle/kaggle-api#api-credentials)
@@ -21,12 +21,12 @@
         * `cd %userprofile%`
         * `mkdir .kaggle`
 * Optional: [Get a PyCharm student account](https://www.jetbrains.com/shop/eform/students)
-    * When that comes through, download and install PyCharm professional v >= 2019.1
+    * When that comes through, download and install PyCharm professional v >= 2019.2
     * PyCharm is only required for users who wish to debug code on their own machine.
     It is highly recommended because this is a common workflow, but it is not strictly required for the workshop.
 * Optional: [~~Sign up for Neuropype academic edition.~~](https://www.neuropype.io/academic-edition)
     * Neuropype is only used in a small example in the workshop itself, and if you wish to reuse
-    my code to preprocess downloaded data. The provided data are already preprocessed so it is not necessary.
+    my code to preprocess downloaded data. The workshop data are already preprocessed so it is not necessary.
     * NeuroPype academic edition works in Windows only.
     * I need to do further testing to get this working.
     
@@ -59,7 +59,7 @@ can ask for support at the workshop should you run into any trouble during confi
     * `pip install sklearn-pandas pandas-summary isoweek kaggle keras-tqdm keras-vis pyreadline`
 * Clone this repository and open it in PyCharm.
     * Open a terminal/anaconda prompt and cd to a directory with a lot of space. (e.g. <strong> D:\DL\ </strong> )
-    * `git clone https://github.com/SachsLab/IntracranialNeurophysDL.git`
+    * `git clone --recursive https://github.com/SachsLab/IntracranialNeurophysDL.git`
     * Run PyCharm and Open the repository root directory.
     * Configure the PyCharm IntracranialNeurophysDL project to use the indl environment.
     ([Instructions here.](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/ConfigurePyCharmCondaEnvironment.pdf))
@@ -77,9 +77,9 @@ follow the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tre
 
 After you've completed the local config for deep learning, try running the jupyter-notebook
 server and running the notebooks/01_00_tensorflow_test.ipynb notebook.
-* Open an Anacond Prompt / terminal / command prompt
-* Activate the indl environment
-* Change to the IntracranialNeurophysDL directory
+* Open an Anaconda Prompt / Terminal
+* Activate the indl environment (`conda activate indl`)
+* Change to the IntracranialNeurophysDL directory (`cd /path/to/repo`)
 * run `jupyter notebook`.
 * In the newly launched browser, click on the notebooks folder then the notebook to launch. 
 

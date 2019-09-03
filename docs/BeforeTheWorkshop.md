@@ -20,6 +20,7 @@
         * `%systemdrive%`
         * `cd %userprofile%`
         * `mkdir .kaggle`
+    * It is a good idea to also keep a copy of .kaggle in an easy-to-find directory (e.g. Downloads) 
 * Optional: [Get a PyCharm student account](https://www.jetbrains.com/shop/eform/students)
     * When that comes through, download and install PyCharm professional v >= 2019.2
     * PyCharm is only required for users who wish to debug code on their own machine.

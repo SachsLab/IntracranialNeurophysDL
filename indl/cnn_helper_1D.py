@@ -80,49 +80,46 @@ def _stitch_filters(max_acts, n=None, sort_by_activation=True):
     return stitched_filters
 
 
-def get_maximizing_input(model, layer_ix, max_filts=None, n_steps=100, at_others_expense=False):
+def get_maximizing_inputs(model, layer_ix, max_filts=None, n_steps=100, at_others_expense=False):
     in_shape = [1] + model.input.shape.as_list()[1:]
 
     layer_output = model.layers[layer_ix].output
     n_filts = layer_output.shape[-1]
+
     filt_ids = np.arange(n_filts)
-    if (max_filts is not None) and (len(filt_ids) > max_filts):
-        filt_ids = filt_ids[np.argsort(np.random.rand(n_filts))][:max_filts]
+    if max_filts is not None:
+        if isinstance(max_filts, (list, tuple)):
+            filt_ids = np.array(max_filts)
+        elif n_filts > max_filts:
+            filt_ids = np.random.permutation(n_filts)[:max_filts]
 
     filt_slice = [np.s_[:] for _ in range(K.ndim(layer_output))]
 
+    input_tups = []
     for ix, filt_ix in enumerate(filt_ids):
         input_data = tf.convert_to_tensor(np.random.randn(*in_shape).astype(np.float32))
-        if at_others_expense:
-            # model.layers[layer_ix].activation == tf.keras.activations.softmax:
-            max_model = tf.keras.Model(model.input, layer_output)
-            non_targ_id = tf.constant(np.setdiff1d(np.arange(layer_output.shape[-1], dtype=int), filt_ix))
-            for step_ix in range(n_steps):
-                with tf.GradientTape() as tape:
-                    tape.watch(input_data)
-                    filter_act = max_model(input_data)
-                    targ_act = filter_act[0, filt_ix]
-                    nontarg_act = K.mean(tf.gather(filter_act, non_targ_id, axis=-1))
-                    loss_value = targ_act - nontarg_act
-                grads = tape.gradient(loss_value, input_data)  # Derivative of loss w.r.t. input
-                # Normalize gradients
-                grads /= (K.sqrt(K.mean(K.square(grads))) + K.epsilon())
-                input_data += grads
-        else:
-            filt_slice[-1] = filt_ix
-            max_model = tf.keras.Model(model.input, layer_output[tuple(filt_slice)])
-            for step_ix in range(n_steps):
-                with tf.GradientTape() as tape:
-                    tape.watch(input_data)
-                    filter_act = max_model(input_data)
-                    loss_value = K.mean(filter_act)
-                grads = tape.gradient(loss_value, input_data)  # Derivative of loss w.r.t. input
-                # Normalize gradients
-                grads /= (K.sqrt(K.mean(K.square(grads))) + K.epsilon())
-                input_data += grads
+        trunc_model = tf.keras.Model(model.input, layer_output)
+        filt_slice[-1] = filt_ix
+        non_targ_id = tf.constant(np.setdiff1d(np.arange(layer_output.shape[-1], dtype=int), filt_ix))
+        loss_value = 0
+        for step_ix in range(n_steps):
+            with tf.GradientTape() as tape:
+                tape.watch(input_data)
+                layer_act = trunc_model(input_data)
+                filt_act = layer_act[filt_slice]
+                if at_others_expense:
+                    nontarg_act = K.mean(tf.gather(layer_act, non_targ_id, axis=-1))
+                    loss_value = K.mean(filt_act - nontarg_act)
+                else:
+                    loss_value = K.mean(filt_act)
+            grads = tape.gradient(loss_value, input_data)  # Derivative of loss w.r.t. input
+            # Normalize gradients
+            grads /= (K.sqrt(K.mean(K.square(grads))) + K.epsilon())
+            input_data += grads
         input_data = np.squeeze(input_data)
+        input_tups.append((filt_ix, input_data, loss_value.numpy()))
 
-
+    return input_tups
 
 
 def visualize_layer(model, layer_idx,

@@ -55,7 +55,7 @@ can ask for support at the workshop should you run into any trouble during confi
     * Windows: `conda activate indl`
     * Mac/Linux: `source activate indl`
 * Install Python packages and their dependencies through conda
-    * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py jedi`
+    * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py jedi pydot`
 * Install a few additional packages through pip
     * `pip install sklearn-pandas pandas-summary isoweek kaggle keras-tqdm keras-vis pyreadline`
 * Clone this repository and open it in PyCharm.

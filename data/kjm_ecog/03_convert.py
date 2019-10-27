@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Load each .mat file, add some metadata, do preprocessing and save to .h5 files.
     for row in datasets:
-        if row['dataset'] not in ['faces_basic', 'fingerflex']:
+        if row['dataset'] not in ['fingerflex']:  # 'faces_basic', 'fingerflex'
             # For now skip datasets which are not supported.
             continue
 
@@ -72,6 +72,9 @@ if __name__ == "__main__":
             sig_pkt = ImportKJMFacesHouses(filename=str(filename))()
         elif row['dataset'] == 'fingerflex':
             data_pkt = ImportKJMFingerFlex(filename=str(filename))()
+            # I can't see myself ever wanting the Transition events.
+            data_pkt = nn.SelectInstances(selection=[{'name': 'Marker', 'value': 'Transition'}],
+                                          invert_selection=True)(data=data_pkt)
             behav_pkt = nn.ExtractStreams(stream_names=['behav'])(data=data_pkt)
             sig_pkt = nn.ExtractStreams(stream_names=['signals', 'markers'])(data=data_pkt)
 

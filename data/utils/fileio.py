@@ -132,7 +132,7 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
     Load a file from the KJM faces_basic dataset.
     :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
     :param sub_id: Subject ID (2-character string)
-    :param feature_set: 'full' or 'bp' for band-power
+    :param feature_set: 'full', 'segs' for segmented data, or 'bp' for band-power
     :return: X, Y, ax_info
     """
     test_file = data_path / 'converted' / 'faces_basic' / (sub_id + '_' + feature_set + '.h5')

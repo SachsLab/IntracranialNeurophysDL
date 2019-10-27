@@ -1,8 +1,8 @@
 from neuropype.engine import *
 
 
-class ImportKJM(Node):
-    """Load data file from KJM dataset.
+class ImportKJMFacesHouses(Node):
+    """Load faces houses data file from KJM dataset.
     https://exhibits.stanford.edu/data/catalog/zk881ps0522
     """
 

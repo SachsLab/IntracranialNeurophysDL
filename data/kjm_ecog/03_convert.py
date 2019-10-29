@@ -179,7 +179,8 @@ if __name__ == "__main__":
             pow_pkt = nn.ExtractStreams(stream_names=['signals', 'markers'])(data=pow_pkt)
             pow_pkt = nn.SelectRange(axis='frequency', selection=-1)(data=pow_pkt)
             lda_node = nn.LinearDiscriminantAnalysis(cond_field='Marker', shrinkage='auto')
-            cv_lda = nn.Crossvalidation(method=lda_node, cond_field='Marker', folds=10)(data=pow_pkt, return_outputs='all')
+            cv_lda = nn.Crossvalidation(method=lda_node, cond_field='Marker', folds=10,
+                                        stratified=True)(data=pow_pkt, return_outputs='all')
             logging.info(" {0} - LDA Loss = {1:.3f} +/- {2:.3f}".format(
                 row['participant'], cv_lda['loss'], cv_lda['loss_std']))
 

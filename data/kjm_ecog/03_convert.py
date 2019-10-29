@@ -73,8 +73,8 @@ if __name__ == "__main__":
         out_dir = working_dir / 'converted' / row['dataset']
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        sig_pkt = nn.BadChannelRemoval(corr_threshold=0.6, noise_threshold=6.,
-                                       max_broken_time=0.6, use_clean_window=True)(data=sig_pkt)
+        sig_pkt = nn.BadChannelRemoval(corr_threshold=0.5, noise_threshold=6.,
+                                       max_broken_time=0.7, use_clean_window=True)(data=sig_pkt)
 
         # Find Bad Time Windows. We don't remove them yet. For now we just identify which samples are good to keep.
         # TODO: Better parameterization.

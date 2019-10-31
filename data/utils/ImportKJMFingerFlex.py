@@ -76,6 +76,16 @@ class ImportKJMFingerFlex(Node):
         ev_dict['MarkerType'].extend(['Stim'] * np.sum(b_stim_onset))
         ev_dict['Time'].extend(tvec[b_stim_onset].tolist())
         ev_df = pd.DataFrame(ev_dict).sort_values(by=['Time'])
+        if False:
+            import matplotlib.pyplot as plt
+            ax1 = plt.subplot(2, 1, 1)
+            ax1.plot(tvec, cue)
+            for t_ev in tvec[b_cue_onset]:
+                ax1.axvline(t_ev, color='k', linestyle='--')
+            ax2 = plt.subplot(2, 1, 2, sharex=ax1)
+            ax2.plot(tvec, stim)
+            for t_ev in tvec[b_stim_onset]:
+                ax2.axvline(t_ev, color='k', linestyle='--')
         # Combine into instance axis data table and create chunk
         ev_ax = InstanceAxis(ev_df['Time'].values, data=ev_df.drop(columns=['Time']).to_records(index=False))
         ev_chunk = Chunk(block=Block(data=np.nan*np.ones(len(ev_ax),), axes=(ev_ax,)),

@@ -154,6 +154,8 @@ def load_kjm_ecog(data_path, sub_id, study_name, feature_set='full'):
                'channel_names': chunk['axes'][ax_types.index('space')]['names'],
                'channel_locs': chunk['axes'][ax_types.index('space')]['positions']
                }
+    if 'frequency' in ax_types:
+        ax_info['frequencies'] = chunk['axes'][ax_types.index('frequency')]['frequencies']
     if 'behav' in chunk_names:
         behav_chnk = chunks[chunk_names.index('behav')][1]
         behav = behav_chnk['data']
@@ -199,7 +201,7 @@ if __name__ == '__main__':
         import os
         os.chdir('../..')
     datadir = Path.cwd() / 'data' / 'kjm_ecog'
-    res_tuple = load_fingerflex(datadir, 'cc')
+    res_tuple = load_fingerflex(datadir, 'cc', feature_set='bp')
     # datadir = Path.cwd() / 'data' / 'joeyo'
     # res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
     print(res_tuple[2])  # X_ax_info

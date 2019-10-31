@@ -127,6 +127,43 @@ def load_joeyo_reaching(data_path, sess_id, x_chunk='lfps', zscore=False):
     return X_chunk['data'], Y_chunk['data'], X_ax_info, Y_ax_info
 
 
+def load_kjm_ecog(data_path, sub_id, study_name, feature_set='full'):
+    """
+    Load a preprocessed file from the KJM ECoG data.
+    :param data_path: Path object pointing to the root of the data directory (parent of 'converted/<study_name>>')
+    :param sub_id: Subject ID (2-character string)
+    :param study_name: Name of study. e.g., 'faces_basic', or 'fingerflex'
+    :param feature_set: 'full', 'segs' for segmented data, or 'bp' for band-power
+    :return: X, Y, ax_info[, behav]
+    """
+    test_file = data_path / 'converted' / study_name / (sub_id + '_' + feature_set + '.h5')
+    chunks = from_neuropype_h5(test_file)
+    chunk_names = [_[0] for _ in chunks]
+    chunk = chunks[chunk_names.index('signals')][1]
+    ax_types = [_['type'] for _ in chunk['axes']]
+    if 'instance' in ax_types:
+        instance_axis = chunk['axes'][ax_types.index('instance')]
+    else:
+        instance_axis = chunks[chunk_names.index('markers')][1]['axes'][0]
+    X = chunk['data']
+    Y = instance_axis['data']['Marker'].values.reshape(-1, 1)
+    ax_info = {'instance_times': instance_axis['times'],
+               'instance_data': instance_axis['data'],
+               'fs': chunk['axes'][ax_types.index('time')]['nominal_rate'],
+               'timestamps': chunk['axes'][ax_types.index('time')]['times'],
+               'channel_names': chunk['axes'][ax_types.index('space')]['names'],
+               'channel_locs': chunk['axes'][ax_types.index('space')]['positions']
+               }
+    if 'behav' in chunk_names:
+        behav_chnk = chunks[chunk_names.index('behav')][1]
+        behav = behav_chnk['data']
+        behav_ax_types = [_['type'] for _ in behav_chnk['axes']]
+        ax_info['behav_channel_names'] = behav_chnk['axes'][behav_ax_types.index('space')]['names']
+        return X, Y, ax_info, behav
+    else:
+        return X, Y, ax_info
+
+
 def load_faces_houses(data_path, sub_id, feature_set='full'):
     """
     Load a file from the KJM faces_basic dataset.
@@ -135,29 +172,34 @@ def load_faces_houses(data_path, sub_id, feature_set='full'):
     :param feature_set: 'full', 'segs' for segmented data, or 'bp' for band-power
     :return: X, Y, ax_info
     """
-    test_file = data_path / 'converted' / 'faces_basic' / (sub_id + '_' + feature_set + '.h5')
-    chunks = from_neuropype_h5(test_file)
-    chunk_names = [_[0] for _ in chunks]
-    chunk = chunks[chunk_names.index('signals')][1]
-    ax_types = [_['type'] for _ in chunk['axes']]
-    instance_axis = chunk['axes'][ax_types.index('instance')]
-    X = chunk['data']
-    Y = instance_axis['data']['Marker'].values.reshape(-1, 1)
-    ax_info = {'instance_data': instance_axis['data'],
-               'fs': chunk['axes'][ax_types.index('time')]['nominal_rate'],
-               'timestamps': chunk['axes'][ax_types.index('time')]['times'],
-               'channel_names': chunk['axes'][ax_types.index('space')]['names'],
-               'channel_locs': chunk['axes'][ax_types.index('space')]['positions']
-               }
-    return X, Y, ax_info
+    return load_kjm_ecog(data_path, sub_id, 'faces_basic', feature_set=feature_set)
+
+
+def load_fingerflex(data_path, sub_id, feature_set='full', event_set='Stim'):
+    """
+    Load a file from the KJM faces_basic dataset.
+    :param data_path: Path object pointing to the root of the data directory (parent of 'converted/faces_basic')
+    :param sub_id: Subject ID (2-character string)
+    :param feature_set: 'full', 'segs' for segmented data, or 'bp' for band-power
+    :param event_set: 'Stim', 'Cue', or 'All'
+    :return: X, Y, ax_info, behav
+    """
+    X, Y, ax_info, behav = load_kjm_ecog(data_path, sub_id, 'fingerflex', feature_set=feature_set)
+    if event_set in ['Stim', 'Cue']:
+        idat = ax_info['instance_data']
+        b_rows = idat['MarkerType'] == event_set
+        ax_info['instance_data'] = idat.loc[b_rows, :]
+        Y = Y[b_rows]
+        ax_info['instance_times'] = ax_info['instance_times'][b_rows]
+    return X, Y, ax_info, behav
 
 
 if __name__ == '__main__':
     if Path.cwd().stem == 'utils':
         import os
         os.chdir('../..')
-    # datadir = Path.cwd() / 'data' / 'kjm_ecog'
-    # res_tuple = load_faces_houses(datadir, 'mv')
-    datadir = Path.cwd() / 'data' / 'joeyo'
-    res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
+    datadir = Path.cwd() / 'data' / 'kjm_ecog'
+    res_tuple = load_fingerflex(datadir, 'cc')
+    # datadir = Path.cwd() / 'data' / 'joeyo'
+    # res_tuple = load_joeyo_reaching(datadir, 'indy_20160921_01')
     print(res_tuple[2])  # X_ax_info

@@ -54,9 +54,13 @@ if __name__ == "__main__":
 
     # Load each .mat file, add some metadata, do preprocessing and save to .h5 files.
     for row in datasets:
-        if row['dataset'] not in ['faces_basic', 'fingerflex']:  # 'faces_basic', 'fingerflex'
+        if row['dataset'] not in ['faces_basic']:  # 'faces_basic', 'fingerflex'
             # For now skip datasets which are not supported.
             continue
+
+        # Create the path where we will save the data.
+        out_dir = working_dir / 'converted' / row['dataset']
+        out_dir.mkdir(parents=True, exist_ok=True)
 
         filename = working_dir / 'download' / row['dataset'] / 'data' / row['participant'] / row['fname']
         if row['dataset'] == 'faces_basic':
@@ -69,9 +73,13 @@ if __name__ == "__main__":
             behav_pkt = nn.ExtractStreams(stream_names=['behav'])(data=data_pkt)
             sig_pkt = nn.ExtractStreams(stream_names=['signals', 'markers'])(data=data_pkt)
 
-        # Create the path where we will save the data.
-        out_dir = working_dir / 'converted' / row['dataset']
-        out_dir.mkdir(parents=True, exist_ok=True)
+            # Load the brain mesh
+            import scipy.io
+            brain = scipy.io.loadmat(filename, squeeze_me=True)['brain']
+            verts = brain['vert'][()]
+            tris = brain['tri'][()]
+            brain_output_path = out_dir / (row['participant'] + '_brain.npz')
+            np.savez(brain_output_path, verts=verts, tris=tris)
 
         sig_pkt = nn.BadChannelRemoval(corr_threshold=0.5, noise_threshold=6.,
                                        max_broken_time=0.7, use_clean_window=True)(data=sig_pkt)
@@ -174,7 +182,7 @@ if __name__ == "__main__":
         output_path = out_dir / (row['participant'] + '_bp.h5')
         nn.ExportH5(filename=str(output_path))(data=pow_pkt)
 
-        if True:
+        if False:
             # Just for fun, print the LDA classification accuracy
             pow_pkt = nn.ExtractStreams(stream_names=['signals', 'markers'])(data=pow_pkt)
             pow_pkt = nn.SelectRange(axis='frequency', selection=-1)(data=pow_pkt)

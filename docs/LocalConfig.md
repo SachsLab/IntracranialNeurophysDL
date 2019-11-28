@@ -42,7 +42,7 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
         * TensorRT is optional. It is a platform for high-perf inference on previously trained models.
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
 1. Activate your `indl` conda environment. (`source activate indl`)
-1. Install TensorFlow: `pip install tensorflow-gpu==2.0.0-rc0`
+1. Install TensorFlow: `pip install tensorflow-gpu`
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -153,7 +153,7 @@ or you can follow the shorter steps below.
     1. If your Anaconda Prompt is already open, close it and re-open it.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu==2.0.0-rc0`
+    * `pip install tensorflow-gpu`
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
@@ -197,7 +197,7 @@ Ensure you have completed all the <a href="https://github.com/SachsLab/Intracran
     * `conda activate indl`
 1. Install TensorFlow:
     * `pip install --upgrade pip`
-    * `pip install tensorflow==2.0.0-rc0`
+    * `pip install tensorflow`
 1. Verify installation:
     * `python -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"`
     * You should get something like this `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA

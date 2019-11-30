@@ -81,9 +81,12 @@ class ImportKJMFacesHouses(Node):
             elec_names[elec_ix] = '{}.{}'.format(elec_name.title(), name_counts[elec_name])
             name_counts[elec_name] += 1
 
+        b_keep = np.any(locs_contents['locs'] != 0, axis=1)
+
         # Put the data into a data chunk
-        data_chunk = Chunk(block=Block(data=data, axes=(TimeAxis(times=tvec, nominal_rate=srate),
-                                                        SpaceAxis(names=elec_names, positions=locs_contents['locs']))),
+        data_chunk = Chunk(block=Block(data=data[:, b_keep], axes=(TimeAxis(times=tvec, nominal_rate=srate),
+                                                                   SpaceAxis(names=elec_names[b_keep],
+                                                                             positions=locs_contents['locs'][b_keep]))),
                            props=[Flags.is_signal])
         data_chunk.props['source_url'] = 'file://' + str(self.filename)
 

@@ -2,8 +2,8 @@ import jax.numpy as np
 from jax import jit, random, vmap, grad, lax
 from jax.experimental import optimizers, stax
 
-import indl.lfads.distributions as dists
-import indl.lfads.utils as utils
+import custom.lfads.distributions as dists
+import custom.lfads.utils as utils
 import numpy as onp  # original CPU-backed NumPy
 
 
@@ -279,7 +279,6 @@ loss_fn = jit(loss_fn, static_argnums=(3, 4, 7))
 if __name__ == '__main__':
     import time
     from pathlib import Path
-    from indl.lfads.data_helper import *
     from sklearn.model_selection import train_test_split
 
     # Hyperparameters #

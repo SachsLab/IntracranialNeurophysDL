@@ -20,10 +20,10 @@
 from __future__ import print_function, division, absolute_import
 
 import jax.numpy as np
-from jax import grad, jit, vmap
+from jax import vmap
 from jax import random
 
-from indl.lfads import utils
+from custom.lfads import utils
 
 
 def poisson_log_likelihood(x, log_rate):

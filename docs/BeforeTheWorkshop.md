@@ -47,22 +47,27 @@ can ask for support at the workshop should you run into any trouble during confi
 * Download and install the latest [miniconda](https://docs.conda.io/en/latest/miniconda.html).
     * Note that installing outside the default directories (e.g. C:\Users\<USER>) might require admin privileges.
 * Run the remaining commands in an Anaconda Prompt (on Windows) or a Terminal (Mac/Linux).  
-* Update conda then create a minimal Python 3.6 environment. (Let me know if 3.7 works for you)
+* Update conda then create a minimal Python 3.7 environment.
     * `conda update -y -n base -c defaults conda`
     * `conda config --add channels conda-forge`
-    * `conda create -n indl python=3.6`
+    * `conda create -n indl python=3.7`
 * Activate the environment
     * Windows: `conda activate indl`
     * Mac/Linux: `source activate indl`
 * Install Python packages and their dependencies through conda
     * `conda install pip numpy scipy scikit-learn pandas jupyterlab bottleneck matplotlib numexpr packaging Pillow requests bcolz opencv seaborn python-graphviz ipywidgets tqdm watchdog qtpy cython plotly h5py jedi pydot`
+* Optional: Fix a broken intel-openmp (required by pytorch):
+    * `conda install -c defaults intel-openmp -f`
 * Install a few additional packages through pip
     * `pip install sklearn-pandas pandas-summary isoweek kaggle keras-tqdm keras-vis pyreadline`
+* Install our custom package that has some helper functions and utilities.
+    * `pip install git+https://github.com/SachsLab/indl.git`
+        * Note to SachsLab members who develop this, you should probably clone and `pip install -e .`
 * Clone this repository and open it in PyCharm.
     * Open a terminal/anaconda prompt and cd to a directory with a lot of space. (e.g. <strong> D:\DL\ </strong> )
     * `git clone --recursive https://github.com/SachsLab/IntracranialNeurophysDL.git`
     * Run PyCharm and Open the repository root directory.
-    * Configure the PyCharm IntracranialNeurophysDL project to use the indl environment.
+    * Configure the PyCharm IntracranialNeurophysDL project to use the indl conda environment.
     ([Instructions here.](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/docs/ConfigurePyCharmCondaEnvironment.pdf))
     
 ## Decision: Local Deep Learning or in Cloud with Google Colaboratory? 
@@ -79,12 +84,13 @@ follow the [LocalConfig](https://github.com/SachsLab/IntracranialNeurophysDL/tre
 After you've completed the local config for deep learning, try running the jupyter-notebook
 server and running the notebooks/01_00_tensorflow_test.ipynb notebook.
 * Open an Anaconda Prompt / Terminal
-* Activate the indl environment (`conda activate indl`)
+* Activate the indl environment (`conda activate indl` or `source activate indl`)
 * Change to the IntracranialNeurophysDL directory (`cd /path/to/repo`)
 * run `jupyter notebook`.
 * In the newly launched browser, click on the notebooks folder then the notebook to launch. 
 
 ### Deep Learning on Google Colaboratory
+
 We suggest familiarizing yourself with colab by going over the [Welcome Notebook](https://colab.research.google.com/notebooks/welcome.ipynb) 
 and the [TensorFlow GPU exercise](https://colab.research.google.com/notebooks/gpu.ipynb).
 Please note that Chrome is the recommended browser.

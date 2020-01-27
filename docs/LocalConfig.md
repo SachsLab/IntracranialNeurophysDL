@@ -22,14 +22,15 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
 #### Linux Method A: Local Config
 
 1. Identify the version of tensorflow you will be using and its requirements.
-    * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
+    * Find your preferred version of tensorflow in [this table](https://www.tensorflow.org/install/source#gpu).
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.7, CUDA 10.0, and cuDNN 7.6.
-         * Even though we will be using tensorflow 2.0, its requirements are the same as the latest tensorflow 1.x.
+     and the version of CUDA it requires. As of this writing: tensorflow 2.1 with python 3.7, CUDA 10.1, and cuDNN 7.6.
+
 1. If you have previously installed a newer version of CUDA or nvidia drivers then uninstall them.
     * `sudo apt-get --purge remove "*cublas*" "cuda*" "libcud*"`
     * `sudo apt-get --purge remove "*nvidia*"`
     * Reboot
+
 1. Install CUDA.
     * `sudo apt-get install linux-headers-$(uname -r)`
     * Edit your `~/.profile` and add the following line:
@@ -38,25 +39,36 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
     * In the following instructions, skip the step to Install NVIDIA driver as they will get installed with CUDA.
         * [Follow these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt).
         * [Alternative Link](https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu/1077063#1077063)
-            * Note: Use `cuda-10-0` instead of `cuda-10-1`.
         * TensorRT is optional. It is a platform for high-perf inference on previously trained models.
+
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
+
 1. Activate your `indl` conda environment. (`source activate indl`)
-1. Install TensorFlow: `pip install tensorflow-gpu`
+
+1. Install TensorFlow: `pip install -U tensorflow-gpu`
+
 1. Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
+
 1. `pip install hyperopt`
+
 1. `pip install --upgrade https://storage.googleapis.com/jax-wheels/cuda100/jaxlib-latest-cp36-none-linux_x86_64.whl`
+
 1. `pip install --upgrade git+https://github.com/google/jax.git`
-    
 
 #### Linux Method B: Using Docker
+
+This section is a bit outdated because we don't use it internally.
+If you try this method and run into any problems or have to make any updates, then please submit an issue to let us know.
+
 1. Install the nVidia driver following [these instructions](https://www.tensorflow.org/install/gpu#install_cuda_with_apt), but stop after the line that says `Reboot. Check that GPUs are visible using the command: nvidia-smi`
+
 1. Install `nvidia-docker` version 2.0
     Go to the [nvidia-docker Wiki](https://github.com/NVIDIA/nvidia-docker/wiki) and click on the link for
     Installation under the Version 2.0 header in the navigation bar on the right.
     ([direct link](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)))
+
 1. (Optional) Clean out old docker images
     If it has been a while since you previously configured a docker image for this workshop, then you may wish to
     cleanup your docker environment and start again.
@@ -66,6 +78,7 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
     * Copy the IMAGE ID to clipboard
     * Remove the image: `docker image rm <pasted_image_id>`
     * Cleanup: `docker system prune`
+
 1. Create the docker image
     * If we have a custom built image (not yet): `TODO: put the built image on dockerhub so it can be pulled directly`
     * Else: Build the docker image 
@@ -90,31 +103,28 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
         * `docker run --runtime=nvidia --rm indl_workshop python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
             * Warnings about "Your CPU supports instructions..." can be safely ignored.
         * `docker run --runtime=nvidia --rm indl_workshop python -c "import torch; print(torch.rand(2,3).cuda())"`
+
 1. Run the docker container
     * `docker run --runtime=nvidia --rm -d --name my_indl --ipc=host -p 8888:8888 -v $PWD/indl:/persist indl_workshop`
         * This will run the container in the background.
         * If you need to inspect the container then you may connect with a bash shell: `docker exec -it my_indl bash`
 
-1. Download datasets
-
-    We will be downloading datasets into a folder that is available on the host computer, and that will be mounted
+1. Download datasets.
+    * We will be downloading datasets into a folder that is available on the host computer, and that will be mounted
     in the docker container when it is run.
         * Change to a directory with lots of storage where you have write access.
         * `mkdir -p $PWD/indl/data`
         * This will be your 'persistent' storage, where downloaded data and calculated models will be stored.
         If you restart your docker container you should not have to download this data again.
-    
-    Optional - For fastai
-      * DEPRECATED: `wget http://files.fast.ai/data/dogscats.zip -P $PWD/indl/data && unzip $PWD/indl/data/dogscats.zip -d $PWD/indl/data/`
-        
-    TODO: others. See [data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md)
+    * Optional - For fastai
+      * DEPRECATED: `wget http://files.fast.ai/data/dogscats.zip -P $PWD/indl/data && unzip $PWD/indl/data/dogscats.zip -d $PWD/indl/data/`  
+    * TODO: others. See [data README](https://github.com/SachsLab/IntracranialNeurophysDL/tree/master/data/README.md)
 
 1. Connect to the jupyter notebook server
     * You will connect to the jupyter notebook server using your web browser. To get the URL, do one of the following:
         * `docker logs my_indl`
         * `docker exec my_indl jupyter notebook list`
     * Copy-paste the URL into your web browser and go.
-
 
 ### Windows 10
 
@@ -123,11 +133,10 @@ download the appropriate versions of the required software. Unlike Linux, Window
 container so all packages will be installed on the local machine.
 
 1. Identify the version of tensorflow you will be using and its requirements.
-    * Look for the `tensorflow_gpu` entries in [this table](https://www.tensorflow.org/install/source#tested_build_configurations).
+    * Find your preferred version of tensorflow in [this table](https://www.tensorflow.org/install/source#gpu).
     (Even though the table is for linux, the version dependencies are true in Windows too)
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
-     and the version of CUDA it requires. As of this writing: tensorflow_gpu >= 1.14.0 with python 3.6 and CUDA 10.0
-        * Even though we will be using tensorflow 2.0, its requirements are the same as the latest tensorflow 1.x.
+     and the version of CUDA it requires. As of this writing: tensorflow 2.1 with python 3.7, CUDA 10.1, and cuDNN 7.6.
 
 1. Install a version of nVidia drivers with version number >= to the minimum required.  
     * Go to [this table](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) and
@@ -138,32 +147,33 @@ determine the minimum nVidia graphics driver version required compatible with th
 1. Next we install CUDA and add it to the PATH. There is a longer [install guide here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/)
 or you can follow the shorter steps below.
     1. CUDA Toolkit
-        * Download and run the CUDA Toolkit <version> installer [from here](https://developer.nvidia.com/cuda-toolkit-archive)
+        * Download and run the CUDA Toolkit (version) installer [from here](https://developer.nvidia.com/cuda-toolkit-archive)
         * In the installer, choose Custom installation (Advanced), Uncheck everything,
         then check only CUDA/Development and CUDA/Runtime/Libraries.
     1. CUDNN
         * Download the CUDNN package [from here](https://developer.nvidia.com/rdp/cudnn-download)
-            * Make sure the cuDNN version says "for CUDA <version>" where <version> matches the CUDA toolkit above.
-        * Extract the 'cuda' folder somewhere convenient. I put it in E:\SachsLab\Tools\Misc
+            * Make sure the cuDNN version says "for CUDA (version)" where (version) matches the CUDA toolkit above.
+        * Extract the 'cuda' folder somewhere convenient. e.g., I put it in E:\SachsLab\Tools\Misc
     1. Open your System Environment settings and add the following items to the top of the PATH
         ([general directions](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)):
-        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\bin (might already be there)
-        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.0\extras\CUPTI\libx64
-        * <path to cuddnn bin> e.g. E:\SachsLab\Tools\Misc\cuda\bin
-    1. If your Anaconda Prompt is already open, close it and re-open it.
+        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin (might already be there)
+        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\extras\CUPTI\lib64
+        * (path to cuddnn bin) e.g. E:\SachsLab\Tools\Misc\cuda\bin
+    1. If your Anaconda Prompt is already open, close/re-open it and `conda activate indl`.
     
 1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu`
+    * `pip install tensorflow-gpu`  It's possible the `-gpu` is not strictly necessary anymore.
     * Test the environment
         * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
         * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
     * Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials.
         * Go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line.
-        Be sure to select `conda` and the appropriate cudatoolkit version used above. 
-        * As of this writing: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`
+        Be sure to select `pip` and the appropriate cudatoolkit version used above. 
+        * As of this writing: `pip install torch===1.4.0 torchvision===0.5.0 -f https://download.pytorch.org/whl/torch_stable.html`
         * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
         * The end of the output should read something like `device='cuda:0'`
     * `conda install hyperopt`
+    * **new:** `pip install tensorflow-probability`
 
 1. Change to the directory from which you cloned the workshop material (e.g. <strong> D:\DL\ </strong> )
     * `D:`

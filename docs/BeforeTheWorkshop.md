@@ -49,7 +49,7 @@ can ask for support at the workshop should you run into any trouble during confi
 * Run the remaining commands in an Anaconda Prompt (on Windows) or a Terminal (Mac/Linux).  
 * Update conda then create a minimal Python 3.7 environment.
     * `conda update -y -n base -c defaults conda`
-    * `conda config --add channels conda-forge`
+    * `conda config --append channels conda-forge`
     * `conda create -n indl python=3.7`
 * Activate the environment
     * Windows: `conda activate indl`
@@ -62,7 +62,7 @@ can ask for support at the workshop should you run into any trouble during confi
     * `pip install sklearn-pandas pandas-summary isoweek kaggle keras-tqdm keras-vis pyreadline`
 * Install our custom package that has some helper functions and utilities.
     * `pip install git+https://github.com/SachsLab/indl.git`
-        * Note to SachsLab members who develop this, you should probably clone and `pip install -e .`
+        * Note to SachsLab members who develop this, you should probably clone, cd into the dir, and `pip install -e .`
 * Clone this repository and open it in PyCharm.
     * Open a terminal/anaconda prompt and cd to a directory with a lot of space. (e.g. <strong> D:\DL\ </strong> )
     * `git clone --recursive https://github.com/SachsLab/IntracranialNeurophysDL.git`

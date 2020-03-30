@@ -132,48 +132,51 @@ These instructions are provided and tested for Windows 10 but should work with p
 download the appropriate versions of the required software. Unlike Linux, Windows can't forward GPU drivers to a docker
 container so all packages will be installed on the local machine.
 
-1. Identify the version of tensorflow you will be using and its requirements.
+**NOTICE** - It seems like conda's tensorflow-gpu package is up to date and working well. The below instructions may be unncessary and could potentiall be replaced with the following:
+* `conda install tensorflow-gpu tensorflow-probabiliy hyperopt`
+
+
+>1. Identify the version of tensorflow you will be using and its requirements.
     * Find your preferred version of tensorflow in [this table](https://www.tensorflow.org/install/source#gpu).
     (Even though the table is for linux, the version dependencies are true in Windows too)
     * Find the latest version of tensorflow_gpu, identify the highest version of python it requires,
      and the version of CUDA it requires. As of this writing: tensorflow 2.1 with python 3.7, CUDA 10.1, and cuDNN 7.6.
-
-1. Install a version of nVidia drivers with version number >= to the minimum required.  
+>
+>1. Install a version of nVidia drivers with version number >= to the minimum required.  
     * Go to [this table](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) and
 determine the minimum nVidia graphics driver version required compatible with the version of CUDA identified above.
     nVidia drivers can be installed several different ways. If you already have geForce experience on your computer then
-    use that. Otherwise go to nvidia.com and download drivers from there.
-    
-1. Next we install CUDA and add it to the PATH. There is a longer [install guide here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/)
+    use that. Otherwise go to nvidia.com and download drivers from there. 
+>
+>1. Next we install CUDA and add it to the PATH. There is a longer [install guide here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/)
 or you can follow the shorter steps below.
-    1. CUDA Toolkit
-        * Download and run the CUDA Toolkit (version) installer [from here](https://developer.nvidia.com/cuda-toolkit-archive)
-        * In the installer, choose Custom installation (Advanced), Uncheck everything,
-        then check only CUDA/Development and CUDA/Runtime/Libraries.
-    1. CUDNN
-        * Download the CUDNN package [from here](https://developer.nvidia.com/rdp/cudnn-download)
-            * Make sure the cuDNN version says "for CUDA (version)" where (version) matches the CUDA toolkit above.
-        * Extract the 'cuda' folder somewhere convenient. e.g., I put it in E:\SachsLab\Tools\Misc
-    1. Open your System Environment settings and add the following items to the top of the PATH
-        ([general directions](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)):
-        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin (might already be there)
-        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\extras\CUPTI\lib64
-        * (path to cuddnn bin) e.g. E:\SachsLab\Tools\Misc\cuda\bin
-    1. If your Anaconda Prompt is already open, close/re-open it and `conda activate indl`.
-    
-1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
-    * `pip install tensorflow-gpu`  It's possible the `-gpu` is not strictly necessary anymore.
-    * Test the environment
-        * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
-        * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
-    * Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials.
-        * Go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line.
-        Be sure to select `pip` and the appropriate cudatoolkit version used above. 
-        * As of this writing: `pip install torch===1.4.0 torchvision===0.5.0 -f https://download.pytorch.org/whl/torch_stable.html`
-        * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
-        * The end of the output should read something like `device='cuda:0'`
-    * `conda install hyperopt`
-    * **new:** `pip install tensorflow-probability`
+>    1. CUDA Toolkit
+>        * Download and run the CUDA Toolkit (version) installer [from here](https://developer.nvidia.com/cuda-toolkit-archive)
+>        * In the installer, choose Custom installation (Advanced), Uncheck everything, then check only CUDA/Development and CUDA/Runtime/Libraries.
+>    1. CUDNN
+>        * Download the CUDNN package [from here](https://developer.nvidia.com/rdp/cudnn-download)
+>            * Make sure the cuDNN version says "for CUDA (version)" where (version) matches the CUDA toolkit above.
+>        * Extract the 'cuda' folder somewhere convenient. e.g., I put it in E:\SachsLab\Tools\Misc
+>    1. Open your System Environment settings and add the following items to the top of the PATH ([general directions](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)):
+>        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin (might already be there)
+>        * C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\extras\CUPTI\lib64
+>        * (path to cuddnn bin) e.g. E:\SachsLab\Tools\Misc\cuda\bin
+>    1. If your Anaconda Prompt is already open, close/re-open it and `conda activate indl`.
+>    
+>1. Use an Anaconda Prompt to add deep-learning related Python packages and libraries.
+>    * `pip install tensorflow-gpu`  It's possible the `-gpu` is not strictly necessary anymore.
+>    * Though not used for the workshop, install Pytorch so you can follow other Pytorch tutorials.
+>        * Go to [Pytorch.org](https://pytorch.org/get-started/locally/) and generate the appropriate command line.
+>        Be sure to select `pip` and the appropriate cudatoolkit version used above. 
+>        * As of this writing: `pip install torch===1.4.0 torchvision===0.5.0 -f https://download.pytorch.org/whl/torch_stable.html`
+>        * Test: `python -c "import torch; print(torch.rand(2,3).cuda())"`
+>        * The end of the output should read something like `device='cuda:0'`
+>    * `conda install hyperopt`
+>    * **new:** `pip install tensorflow-probability`
+
+1. Test the environment
+    * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
+    * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
 
 1. Change to the directory from which you cloned the workshop material (e.g. <strong> D:\DL\ </strong> )
     * `D:`

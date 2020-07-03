@@ -43,17 +43,21 @@ Method A has simpler instructions and is easier to use after-the-fact, though it
 
 1. Make sure you have previously followed the BeforeTheWorkshop instructions.
 
-1. Activate your `indl` conda environment. (`source activate indl`)
+1. Activate your `indl` conda environment. (`source activate indl` / `conda activate indl`)
 
-1. Install TensorFlow: `pip install -U tensorflow-gpu`
+1. Install TensorFlow: `pip install tensorflow`
+
+1. `pip install --upgrade tensorflow-probability`
 
 1. Test the environment
-        * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
-        * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
+    * `python -c "import tensorflow as tf; tf.config.list_physical_devices('GPU')"`
+    * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
 
 1. `pip install hyperopt`
 
-1. `pip install --upgrade https://storage.googleapis.com/jax-wheels/cuda100/jaxlib-latest-cp36-none-linux_x86_64.whl`
+1. jaxlib
+    * linux: `pip install --upgrade https://storage.googleapis.com/jax-releases/cuda102/jaxlib-0.1.51-cp38-none-manylinux2010_x86_64.whl`
+    * mac/windows: `pip install --upgrade jaxlib` (CPU only)
 
 1. `pip install --upgrade git+https://github.com/google/jax.git`
 

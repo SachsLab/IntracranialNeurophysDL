@@ -50,7 +50,7 @@ can ask for support at the workshop should you run into any trouble during confi
 * Update conda then create a minimal Python 3.7 environment.
     * `conda update -y -n base -c defaults conda`
     * `conda config --append channels conda-forge`
-    * `conda create -n indl python=3.7`
+    * `conda create -n indl python=3.8`
 * Activate the environment
     * Windows: `conda activate indl`
     * Mac/Linux: `source activate indl`

@@ -179,7 +179,7 @@ or you can follow the shorter steps below.
 >    * **new:** `pip install tensorflow-probability`
 
 1. Test the environment
-    * `python -c "import tensorflow as tf; tf.test.is_gpu_available()"`
+    * `python -c "import tensorflow as tf; tf.config.list_physical_devices('GPU')"`
     * The output should be self-explanatory, except you can ignore warnings about not using CPU instructions.
 
 1. Change to the directory from which you cloned the workshop material (e.g. <strong> D:\DL\ </strong> )

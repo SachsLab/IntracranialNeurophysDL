@@ -46,7 +46,8 @@ can ask for support at the workshop should you run into any trouble during confi
      * For linux `sudo apt-get install git`
 * Download and install the latest [miniconda](https://docs.conda.io/en/latest/miniconda.html).
     * Note that installing outside the default directories (e.g. C:\Users\<USER>) might require admin privileges.
-* Run the remaining commands in an Anaconda Prompt (on Windows) or a Terminal (Mac/Linux).  
+* Run the remaining commands in an Anaconda Prompt (on Windows) or a Terminal (Mac/Linux).
+     * For linux you might need to add miniconda to path `export PATH=~/miniconda3/bin:$PATH`
 * Update conda then create a minimal Python 3.7 environment.
     * `conda update -y -n base -c defaults conda`
     * `conda config --append channels conda-forge`
